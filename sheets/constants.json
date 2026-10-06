@@ -1,0 +1,118 @@
+{
+  "sheet": "constants",
+  "about": "Fixed numbers both sides share. Each row becomes one constant in Sheets.java and sheets_gen.h.",
+  "columns": {
+    "id": "constant name",
+    "value": "the value (number or text)",
+    "type": "int | float | string",
+    "side": "both | mc | nv | launcher",
+    "source": "where the number comes from",
+    "verified": "how it was checked, or 'no: <what remains>'"
+  },
+  "rows": [
+    {
+      "id": "UNITS_PER_BLOCK",
+      "value": 70.0,
+      "type": "float",
+      "side": "both",
+      "source": "Melty game_info fallout-new-vegas: one game unit = 0.0142875 m, so 1 m = 69.99 units; SkyCraft uses 70 per block for the same engine family",
+      "verified": "docs: Melty game_info + SkyCraft DESIGN.md section 4"
+    },
+    {
+      "id": "LINK_PORT",
+      "value": 25599,
+      "type": "int",
+      "side": "both",
+      "source": "universal-modder minecraft-gta5-passthrough HostLink default port",
+      "verified": "code: HostLink.java"
+    },
+    {
+      "id": "FRAME_SHM",
+      "value": "Local\\OSLFrame",
+      "type": "string",
+      "side": "both",
+      "source": "our own name for the frame mapping (the GTA example used Local\\MCPassthroughFrame)",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "GROUND_RADIUS",
+      "value": 24,
+      "type": "int",
+      "side": "nv",
+      "source": "blocks probed around the player for invisible ground; the GTA example used 40, New Vegas raycasts are cheaper to keep fewer",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "GROUND_PROBES_PER_FRAME",
+      "value": 96,
+      "type": "int",
+      "side": "nv",
+      "source": "raycasts per frame, amortised (GTA example: 160)",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "PERK_SYNC_SECONDS",
+      "value": 5,
+      "type": "int",
+      "side": "mc",
+      "source": "how often Minecraft re-checks builds and reports perks",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "QUEST_POLL_SECONDS",
+      "value": 3,
+      "type": "int",
+      "side": "nv",
+      "source": "how often New Vegas checks quest completion",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "CHEST_DISTANCE",
+      "value": 3,
+      "type": "int",
+      "side": "mc",
+      "source": "a quest chest lands this many blocks in front of the player, on the ground",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "MAX_PLACED_PROPS",
+      "value": 300,
+      "type": "int",
+      "side": "nv",
+      "source": "cap on invisible collision boxes New Vegas places for Minecraft blocks (GTA example capped at 400 to stay under engine limits)",
+      "verified": "no: measure in game"
+    },
+    {
+      "id": "Y_OFFSET",
+      "value": 64,
+      "type": "int",
+      "side": "both",
+      "source": "mc.y = nv.z / UNITS_PER_BLOCK + Y_OFFSET; with the taller overworld (min_y -512, height 1536) the Mojave's heights fit",
+      "verified": "no: check highest/lowest Mojave points in game"
+    },
+    {
+      "id": "WORLDSPACE_SPACING",
+      "value": 100000,
+      "type": "int",
+      "side": "both",
+      "source": "each New Vegas worldspace (Mojave, the Strip, Freeside...) gets its own strip of the Minecraft world, this many blocks apart on X; slots are assigned in the order first visited and saved in the Minecraft world",
+      "verified": "design: chosen here (Minecraft's world border is 29,999,984)"
+    },
+    {
+      "id": "BUILD_IN_INTERIORS",
+      "value": 0,
+      "type": "int",
+      "side": "nv",
+      "source": "interior cells share coordinates with each other, so build mode is off indoors in v1",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "STARTER_CHEST",
+      "value": "vault_tec_starter",
+      "type": "string",
+      "side": "mc",
+      "source": "chests.id given once when a new Minecraft world starts, so there is something to build with before the first salvage",
+      "verified": "design: chosen here"
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "sheet": "chests",
+  "about": "Reward chests. Items use Minecraft's give syntax; custom names give them a Fallout flavour.",
+  "columns": {
+    "id": "row id",
+    "name": "chest's custom name",
+    "items": "[[item with components, count], ...]",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "vault_tec_starter",
+      "name": "Vault-Tec Homesteading Kit",
+      "items": [
+        [
+          "minecraft:crafting_table",
+          1
+        ],
+        [
+          "minecraft:oak_planks",
+          32
+        ],
+        [
+          "minecraft:torch",
+          16
+        ],
+        [
+          "minecraft:wooden_pickaxe",
+          1
+        ],
+        [
+          "minecraft:wooden_axe",
+          1
+        ]
+      ],
+      "verified": "test: every item command ran in the dev client and the chests appeared (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06))"
+    },
+    {
+      "id": "doc_mitchell",
+      "name": "Doc Mitchell's Care Package",
+      "items": [
+        [
+          "minecraft:golden_apple[custom_name=\"Stimpak\"]",
+          3
+        ],
+        [
+          "minecraft:bread",
+          8
+        ],
+        [
+          "minecraft:iron_pickaxe",
+          1
+        ],
+        [
+          "minecraft:white_bed",
+          1
+        ],
+        [
+          "minecraft:oak_door",
+          1
+        ]
+      ],
+      "verified": "test: every item command ran in the dev client and the chests appeared (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06))"
+    },
+    {
+      "id": "sunny_smiles",
+      "name": "Sunny's Hunting Kit",
+      "items": [
+        [
+          "minecraft:bow[custom_name=\"Varmint Rifle\"]",
+          1
+        ],
+        [
+          "minecraft:arrow",
+          32
+        ],
+        [
+          "minecraft:cooked_beef[custom_name=\"Gecko Steak\"]",
+          8
+        ],
+        [
+          "minecraft:wheat_seeds",
+          16
+        ],
+        [
+          "minecraft:iron_hoe",
+          1
+        ]
+      ],
+      "verified": "test: every item command ran in the dev client and the chests appeared (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06))"
+    },
+    {
+      "id": "goodsprings_militia",
+      "name": "Goodsprings Militia Crate",
+      "items": [
+        [
+          "minecraft:iron_sword[custom_name=\"Machete\"]",
+          1
+        ],
+        [
+          "minecraft:iron_chestplate[custom_name=\"Leather Armor\"]",
+          1
+        ],
+        [
+          "minecraft:tnt[custom_name=\"Dynamite\"]",
+          8
+        ],
+        [
+          "minecraft:cobblestone",
+          64
+        ]
+      ],
+      "verified": "test: every item command ran in the dev client and the chests appeared (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06))"
+    },
+    {
+      "id": "mojave_express",
+      "name": "Mojave Express Crate",
+      "items": [
+        [
+          "minecraft:iron_block",
+          9
+        ],
+        [
+          "minecraft:copper_block",
+          4
+        ],
+        [
+          "minecraft:glass",
+          32
+        ],
+        [
+          "minecraft:beacon[custom_name=\"Vault-Tec Beacon\"]",
+          1
+        ]
+      ],
+      "verified": "test: every item command ran in the dev client and the chests appeared (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06))"
+    }
+  ]
+}

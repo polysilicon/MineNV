@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "osl",
+	"version": "${version}",
+	"name": "Overworld Supply Line",
+	"description": "Minecraft in the Mojave: runs hidden next to Fallout: New Vegas, follows its camera, builds on its ground, and hands its picture back to be drawn inside New Vegas. New Vegas junk becomes Minecraft items, Minecraft builds unlock Courier perks, New Vegas quests drop Minecraft chests.",
+	"authors": ["polysilicon"],
+	"contributors": ["rehan and universal-modder contributors (passthrough base, MIT)"],
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["dev.osl.Osl"],
+		"client": ["dev.osl.client.OslClient"]
+	},
+	"mixins": [
+		"osl.mixins.json",
+		{"config": "osl.client.mixins.json", "environment": "client"}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

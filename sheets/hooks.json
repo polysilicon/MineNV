@@ -1,0 +1,204 @@
+{
+  "sheet": "hooks",
+  "about": "Every place the mashup touches either game. New Vegas rows are for runtime 1.4.0.525 (the only one xNVSE supports).",
+  "columns": {
+    "id": "row id",
+    "side": "nv | mc",
+    "kind": "address | vtable | script | mixin | api",
+    "target": "what it is",
+    "value": "address, index or class",
+    "use": "what we do with it",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "player_singleton",
+      "side": "nv",
+      "kind": "address",
+      "target": "PlayerCharacter**",
+      "value": "0x11DEA3C",
+      "use": "player position, worldspace, cell",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h"
+    },
+    {
+      "id": "tes_singleton",
+      "side": "nv",
+      "kind": "address",
+      "target": "TES**",
+      "value": "0x11DEA10",
+      "use": "terrain height, ray casts",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameData.h"
+    },
+    {
+      "id": "tes_terrain_height",
+      "side": "nv",
+      "kind": "address",
+      "target": "TES::GetTerrainHeight(NiPoint2*, float*) thiscall",
+      "value": "0x4572E0",
+      "use": "ground fallback where a ray misses",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameData.h"
+    },
+    {
+      "id": "tes_pick_object",
+      "side": "nv",
+      "kind": "address",
+      "target": "TES::PickObject(RayCastData*, bool) thiscall",
+      "value": "0x458440",
+      "use": "downward ray casts for ground columns",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/jip_core.cpp _GetRayCastObject"
+    },
+    {
+      "id": "dx9_renderer",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiDX9Renderer**",
+      "value": "0x11F4748",
+      "use": "the game's IDirect3DDevice9",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h"
+    },
+    {
+      "id": "dx9_device_offset",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiDX9Renderer::pkD3DDevice9 field offset",
+      "value": "0x288",
+      "use": "device pointer",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h NiDX9Renderer::device // 288"
+    },
+    {
+      "id": "d3d9_present",
+      "side": "nv",
+      "kind": "vtable",
+      "target": "IDirect3DDevice9::Present",
+      "value": "17",
+      "use": "composite Minecraft's frame before the picture is shown",
+      "verified": "docs: d3d9.h vtable order"
+    },
+    {
+      "id": "scene_camera",
+      "side": "nv",
+      "kind": "address",
+      "target": "main NiCamera (SceneGraph camera)",
+      "value": "*(SceneGraph**)0x11DEB7C, camera at +0xAC",
+      "use": "camera position, rotation, FOV for Minecraft",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/hooks.h DoRenderFrameHook (mov ecx, ds:0x11DEB7C; mov ecx,[ecx+0xAC]) + netimmerse.h SceneGraph::camera // AC"
+    },
+    {
+      "id": "player_fov",
+      "side": "nv",
+      "kind": "address",
+      "target": "PlayerCharacter::worldFOV (degrees, horizontal)",
+      "value": "0x670",
+      "use": "converted to Minecraft's vertical FOV",
+      "verified": "code: xNVSE source (xNVSE/NVSE) nvse/GameObjects.h"
+    },
+    {
+      "id": "key_state",
+      "side": "nv",
+      "kind": "script",
+      "target": "IsKeyPressed <code> 2 (raw state, sees disabled keys)",
+      "value": "xNVSE command",
+      "use": "read keys sheet",
+      "verified": "code: xNVSE source (xNVSE/NVSE) Hooks_DirectInput8Create.h kFlag_RawState"
+    },
+    {
+      "id": "key_disable",
+      "side": "nv",
+      "kind": "script",
+      "target": "DisableKey / EnableKey",
+      "value": "xNVSE command",
+      "use": "New Vegas ignores build-mode keys",
+      "verified": "code: xNVSE source (xNVSE/NVSE) Commands_Input.cpp"
+    },
+    {
+      "id": "script_interface",
+      "side": "nv",
+      "kind": "api",
+      "target": "NVSEScriptInterface::CompileScript + CallFunction",
+      "value": "kInterface_Script",
+      "use": "economy scripts generated from sheets (AddItem, RemoveItem, GetItemCount, GetQuestCompleted, ModAV)",
+      "verified": "code: xNVSE source (xNVSE/NVSE) PluginAPI.h"
+    },
+    {
+      "id": "serialization",
+      "side": "nv",
+      "kind": "api",
+      "target": "NVSESerializationInterface",
+      "value": "kInterface_Serialization",
+      "use": "per-save state: passive perks applied, last daily day",
+      "verified": "code: xNVSE source (xNVSE/NVSE) PluginAPI.h"
+    },
+    {
+      "id": "mc_camera",
+      "side": "mc",
+      "kind": "mixin",
+      "target": "Camera.setup",
+      "value": "CameraMixin",
+      "use": "render from New Vegas's camera",
+      "verified": "test: frames composited by tools/fake_newvegas.py (frame_build_mode.png)"
+    },
+    {
+      "id": "mc_frame",
+      "side": "mc",
+      "kind": "mixin",
+      "target": "GameRenderer.renderLevel / render",
+      "value": "GameRendererMixin",
+      "use": "world and overlay layers to shared memory",
+      "verified": "test: frames composited by tools/fake_newvegas.py (frame_build_mode.png)"
+    },
+    {
+      "id": "mc_fog_sky",
+      "side": "mc",
+      "kind": "mixin",
+      "target": "FogRenderer + sky",
+      "value": "FogRendererMixin",
+      "use": "transparent background so only blocks show",
+      "verified": "test: frames composited by tools/fake_newvegas.py (frame_build_mode.png)"
+    },
+    {
+      "id": "mc_world_height",
+      "side": "mc",
+      "kind": "api",
+      "target": "data/minecraft/dimension_type/overworld.json",
+      "value": "min_y -512, height 1536",
+      "use": "the Mojave's heights fit the Minecraft world (y = z/70 + 64)",
+      "verified": "test: setblock at y=-500 and y=1000 reported back over the link (dev client)"
+    },
+    {
+      "id": "camera_world_rotate",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiAVObject::m_transformWorld.rotate (NiMatrix33, row-major)",
+      "value": "+0x68",
+      "use": "camera orientation",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h m_transformWorld // 68"
+    },
+    {
+      "id": "camera_world_translate",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiAVObject::m_transformWorld.translate",
+      "value": "+0x8C",
+      "use": "camera position",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/hooks.h reads [camera+0x8C..0x94]"
+    },
+    {
+      "id": "camera_frustum",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiCamera::frustum (left,right,top,bottom,near,far,ortho)",
+      "value": "+0xDC",
+      "use": "vertical FOV for Minecraft and New Vegas depth range for the composite",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h NiCamera frustum // 0DC"
+    },
+    {
+      "id": "d3d9_depth_composite",
+      "side": "nv",
+      "kind": "api",
+      "target": "draw Minecraft's world layer as a full-screen quad writing oDepth, depth-tested against the device's current depth-stencil at Present",
+      "value": "ZFUNC LESSEQUAL, ZWRITE off; fallback ZFUNC ALWAYS when the depth surface doesn't match the back buffer",
+      "use": "New Vegas objects in front hide Minecraft blocks",
+      "verified": "no: needs the running game (depth surface at Present may be cleared or MSAA)"
+    }
+  ]
+}

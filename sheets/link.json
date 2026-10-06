@@ -1,0 +1,150 @@
+{
+  "sheet": "link",
+  "about": "Every message on the WebSocket between the New Vegas plugin (client) and Minecraft (server, 127.0.0.1:LINK_PORT). JSON objects with a 't' field. Coordinates are already in Minecraft space unless noted.",
+  "columns": {
+    "id": "value of t",
+    "dir": "nv>mc | mc>nv",
+    "fields": "fields besides t",
+    "when": "rate or trigger",
+    "mc": "Minecraft handler",
+    "nv": "New Vegas handler",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "hello",
+      "dir": "mc>nv",
+      "fields": "v (protocol), shm (frame mapping name), pid",
+      "when": "on connect",
+      "mc": "HostLink.onOpen",
+      "nv": "Link::OnHello",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "cam",
+      "dir": "nv>mc",
+      "fields": "f frame, p [x,y,z] eye, r [yaw,pitch,roll] deg, fov vertical deg, fp first person, pl [x,y,z] feet, h body yaw, ws worldspace slot, build bool, w/h viewport px",
+      "when": "every New Vegas frame",
+      "mc": "HostState.update",
+      "nv": "Camera::Send",
+      "verified": "no: in game (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06) covers the Minecraft side)"
+    },
+    {
+      "id": "ground",
+      "dir": "nv>mc",
+      "fields": "c [x,z,yBottom,yTop,...] block columns",
+      "when": "GROUND_PROBES_PER_FRAME rays each frame",
+      "mc": "WorldBridge.solid",
+      "nv": "Ground::Probe",
+      "verified": "no: in game (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06) covers the Minecraft side)"
+    },
+    {
+      "id": "clear",
+      "dir": "nv>mc",
+      "fields": "",
+      "when": "cell or worldspace change",
+      "mc": "WorldBridge.clearSolid",
+      "nv": "Ground::OnCellChange",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "key",
+      "dir": "nv>mc",
+      "fields": "k use|attack|pick|inventory|escape, down bool",
+      "when": "on press/release (keys sheet)",
+      "mc": "ClientInput.handle",
+      "nv": "Input::Poll",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "slot",
+      "dir": "nv>mc",
+      "fields": "n 0-8",
+      "when": "on key (keys sheet)",
+      "mc": "ClientInput.handle",
+      "nv": "Input::Poll",
+      "verified": "no: fake host sends slot but nothing checks it yet"
+    },
+    {
+      "id": "scroll",
+      "dir": "nv>mc",
+      "fields": "d -1|1",
+      "when": "on wheel (keys sheet)",
+      "mc": "ClientInput.handle",
+      "nv": "Input::Poll",
+      "verified": "no: not used by keys.json (wheel rows dropped), kept for later"
+    },
+    {
+      "id": "cursor",
+      "dir": "nv>mc",
+      "fields": "dx, dy (pixels), b [left,right] down",
+      "when": "every frame while a Minecraft screen is open",
+      "mc": "ScreenCursor.move",
+      "nv": "Input::Poll",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "screen",
+      "dir": "mc>nv",
+      "fields": "open bool",
+      "when": "when a Minecraft screen opens/closes",
+      "mc": "ScreenCursor.tick",
+      "nv": "Input::OnScreen (freezes New Vegas look/controls)",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "build",
+      "dir": "nv>mc",
+      "fields": "on bool",
+      "when": "build key toggles",
+      "mc": "Mojave.setBuildMode (hand/hotbar shown, crosshair)",
+      "nv": "Input::ToggleBuild (holsters weapon, disables fire)",
+      "verified": "no: in game (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06) covers the Minecraft side)"
+    },
+    {
+      "id": "give",
+      "dir": "nv>mc",
+      "fields": "items [[mc item, count],...], why text",
+      "when": "after Salvage",
+      "mc": "Economy.give",
+      "nv": "Economy::Salvage",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "quest",
+      "dir": "nv>mc",
+      "fields": "id (quests.id)",
+      "when": "New Vegas sees the quest completed (every QUEST_POLL_SECONDS; re-sent on connect)",
+      "mc": "Economy.questDone (chest once per world)",
+      "nv": "Economy::PollQuests",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "perks",
+      "dir": "mc>nv",
+      "fields": "on [perks.id,...]",
+      "when": "every PERK_SYNC_SECONDS and on connect",
+      "mc": "Economy.reportPerks",
+      "nv": "Economy::OnPerks",
+      "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
+    },
+    {
+      "id": "toast",
+      "dir": "mc>nv",
+      "fields": "text",
+      "when": "chest landed, build recognised",
+      "mc": "Economy",
+      "nv": "Ui::Message (QueueUIMessage)",
+      "verified": "no: in game"
+    },
+    {
+      "id": "blocks",
+      "dir": "mc>nv",
+      "fields": "set [x,y,z,...] and clear [x,y,z,...] (flat, New Vegas's own coordinates)",
+      "when": "end of a server tick with changes",
+      "mc": "WorldBridge (changes)",
+      "nv": "Props::Sync (invisible collision boxes)",
+      "verified": "no: in game (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06) covers the Minecraft side)"
+    }
+  ]
+}

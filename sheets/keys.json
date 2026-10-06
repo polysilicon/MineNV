@@ -1,0 +1,134 @@
+{
+  "sheet": "keys",
+  "about": "Keys New Vegas forwards to Minecraft. Codes are xNVSE key codes (DirectInput scancodes; mouse buttons 256+, wheel 264/265). 'build' rows only act in build mode, and New Vegas ignores those keys while it is on.",
+  "columns": {
+    "id": "row id",
+    "nv_code": "xNVSE key code",
+    "key_name": "key as players know it",
+    "mode": "always | build",
+    "mc_action": "message sent to Minecraft: key:<name> | slot:<n> | scroll:<d> | toggle_build | salvage",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "build_toggle",
+      "nv_code": 48,
+      "key_name": "B",
+      "mode": "always",
+      "mc_action": "toggle_build",
+      "verified": "no: check B is unbound in New Vegas defaults (ControlMap)"
+    },
+    {
+      "id": "salvage",
+      "nv_code": 36,
+      "key_name": "J",
+      "mode": "always",
+      "mc_action": "salvage",
+      "verified": "no: check J is unbound in New Vegas defaults (ControlMap)"
+    },
+    {
+      "id": "break",
+      "nv_code": 256,
+      "key_name": "Left mouse",
+      "mode": "build",
+      "mc_action": "key:attack",
+      "verified": "docs: xNVSE kMacro_MouseButtonOffset = 256"
+    },
+    {
+      "id": "place",
+      "nv_code": 257,
+      "key_name": "Right mouse",
+      "mode": "build",
+      "mc_action": "key:use",
+      "verified": "docs: xNVSE kMacro_MouseButtonOffset = 256"
+    },
+    {
+      "id": "pick",
+      "nv_code": 258,
+      "key_name": "Middle mouse",
+      "mode": "build",
+      "mc_action": "key:pick",
+      "verified": "docs: xNVSE kMacro_MouseButtonOffset = 256"
+    },
+    {
+      "id": "inventory",
+      "nv_code": 23,
+      "key_name": "I",
+      "mode": "build",
+      "mc_action": "key:inventory",
+      "verified": "no: check I is unbound in New Vegas defaults"
+    },
+    {
+      "id": "slot1",
+      "nv_code": 2,
+      "key_name": "1",
+      "mode": "build",
+      "mc_action": "slot:0",
+      "verified": "docs: DIK_1 = 0x02"
+    },
+    {
+      "id": "slot2",
+      "nv_code": 3,
+      "key_name": "2",
+      "mode": "build",
+      "mc_action": "slot:1",
+      "verified": "docs: DIK_2 = 0x03"
+    },
+    {
+      "id": "slot3",
+      "nv_code": 4,
+      "key_name": "3",
+      "mode": "build",
+      "mc_action": "slot:2",
+      "verified": "docs: DIK_3 = 0x04"
+    },
+    {
+      "id": "slot4",
+      "nv_code": 5,
+      "key_name": "4",
+      "mode": "build",
+      "mc_action": "slot:3",
+      "verified": "docs: DIK_4 = 0x05"
+    },
+    {
+      "id": "slot5",
+      "nv_code": 6,
+      "key_name": "5",
+      "mode": "build",
+      "mc_action": "slot:4",
+      "verified": "docs: DIK_5 = 0x06"
+    },
+    {
+      "id": "slot6",
+      "nv_code": 7,
+      "key_name": "6",
+      "mode": "build",
+      "mc_action": "slot:5",
+      "verified": "docs: DIK_6 = 0x07"
+    },
+    {
+      "id": "slot7",
+      "nv_code": 8,
+      "key_name": "7",
+      "mode": "build",
+      "mc_action": "slot:6",
+      "verified": "docs: DIK_7 = 0x08"
+    },
+    {
+      "id": "slot8",
+      "nv_code": 9,
+      "key_name": "8",
+      "mode": "build",
+      "mc_action": "slot:7",
+      "verified": "docs: DIK_8 = 0x09"
+    },
+    {
+      "id": "slot9",
+      "nv_code": 10,
+      "key_name": "9",
+      "mode": "build",
+      "mc_action": "slot:8",
+      "verified": "docs: DIK_9 = 0x0A"
+    }
+  ]
+}

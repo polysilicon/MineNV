@@ -1,0 +1,63 @@
+{
+  "sheet": "perks",
+  "about": "Courier perks unlocked by builds. 'passive' applies once per New Vegas save; 'daily' gives its items each in-game day (GameDaysPassed).",
+  "columns": {
+    "id": "row id",
+    "name": "perk name shown in New Vegas",
+    "kind": "passive | daily",
+    "effect": "what the New Vegas side does",
+    "nv_items": "daily items: [[nv_name, count], ...] (resolved like loot; Caps001 is the fixed caps form 0x0000000F)",
+    "actor_value": "passive actor value change: [name, amount] or null",
+    "message": "corner message in New Vegas",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "homestead",
+      "name": "Homestead",
+      "kind": "daily",
+      "effect": "food from your farm every morning",
+      "nv_items": [
+        [
+          "Mutfruit",
+          2
+        ],
+        [
+          "Banana Yucca Fruit",
+          2
+        ]
+      ],
+      "actor_value": null,
+      "message": "Homestead: your farm sent fresh food.",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "home_sweet_home",
+      "name": "Home Sweet Home",
+      "kind": "passive",
+      "effect": "+25 carry weight",
+      "nv_items": [],
+      "actor_value": [
+        "CarryWeight",
+        25
+      ],
+      "message": "Home Sweet Home: +25 carry weight.",
+      "verified": "no: ModAV CarryWeight from a compiled script, check in game"
+    },
+    {
+      "id": "beacon_of_the_mojave",
+      "name": "Beacon of the Mojave",
+      "kind": "daily",
+      "effect": "100 caps every day",
+      "nv_items": [
+        [
+          "Caps001",
+          100
+        ]
+      ],
+      "actor_value": null,
+      "message": "Beacon of the Mojave: 100 caps from passing caravans.",
+      "verified": "docs: caps are form 0x0000000F (Caps001) in every Gamebryo Fallout; daily timer no: test in game"
+    }
+  ]
+}

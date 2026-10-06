@@ -1,0 +1,22 @@
+{
+  "sheet": "versions",
+  "about": "Every external piece the mashup needs, its version, where it comes from and how it reaches the player.",
+  "columns": {
+    "id": "component",
+    "version": "exact version",
+    "source": "official download location",
+    "license": "license",
+    "ships": "bundled | melty-installs | downloaded-by-prism | player-owns",
+    "verified": "how it was checked"
+  },
+  "rows": [
+    {"id": "fallout-new-vegas", "version": "1.4.0.525", "source": "Steam / GOG (player's own copy)", "license": "proprietary", "ships": "player-owns", "verified": "docs: xNVSE supports runtime 1.4.0.525 only (xNVSE README)"},
+    {"id": "xnvse", "version": "6.4.9", "source": "https://github.com/xNVSE/NVSE/releases", "license": "MIT-like (xNVSE license)", "ships": "melty-installs", "verified": "Melty game_info: installs 6.4.9 automatically"},
+    {"id": "minecraft", "version": "26.3", "source": "Mojang, through Prism Launcher", "license": "proprietary (player's account)", "ships": "player-owns", "verified": "code: GTA example and SkyCraft both pin 26.3"},
+    {"id": "fabric-loader", "version": "0.19.5", "source": "https://maven.fabricmc.net/", "license": "Apache-2.0", "ships": "downloaded-by-prism", "verified": "code: gradle.properties of the GTA example"},
+    {"id": "fabric-api", "version": "0.161.0+26.3", "source": "https://maven.fabricmc.net/ (Modrinth: fabric-api)", "license": "Apache-2.0", "ships": "bundled", "verified": "code: gradle.properties of the GTA example"},
+    {"id": "java-websocket", "version": "1.6.0", "source": "Maven Central org.java-websocket:Java-WebSocket", "license": "MIT", "ships": "bundled", "verified": "code: jar-in-jar via Loom include"},
+    {"id": "prism-launcher", "version": "no: pick the current Windows portable release when packaging", "source": "https://prismlauncher.org/download/ (GitHub releases)", "license": "GPL-3.0", "ships": "bundled", "verified": "no: download in the release workflow"},
+    {"id": "java-runtime", "version": "25", "source": "Prism downloads Mojang's runtime for 26.3", "license": "GPL-2.0+CE", "ships": "downloaded-by-prism", "verified": "docs: SkyCraft README (Prism downloads Minecraft and Java itself)"}
+  ]
+}

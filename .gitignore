@@ -1,0 +1,8 @@
+minecraft/.gradle/
+minecraft/build/
+minecraft/run/
+newvegas/build/
+launcher/*.exe
+dist/
+__pycache__/
+*.log

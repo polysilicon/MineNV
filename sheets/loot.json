@@ -1,0 +1,215 @@
+{
+  "sheet": "loot",
+  "about": "New Vegas junk the Salvage key turns into Minecraft items. One row per New Vegas item; every one in the Courier's inventory is taken and its gives added to the Minecraft inventory.",
+  "columns": {
+    "id": "row id",
+    "nv_name": "English in-game name (FULL), used to resolve the form ID",
+    "nv_edid": "EditorID if known, else '' (name is used)",
+    "nv_type": "record type in FalloutNV.esm",
+    "gives": "Minecraft items per New Vegas item: [[item id, count], ...]",
+    "flavour": "one line shown in the salvage message",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "scrap_metal",
+      "nv_name": "Scrap Metal",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:iron_ingot",
+          2
+        ],
+        [
+          "minecraft:stone_bricks",
+          16
+        ]
+      ],
+      "flavour": "Scrap metal hammered into bricks and ingots",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "tin_can",
+      "nv_name": "Tin Can",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:sandstone",
+          8
+        ]
+      ],
+      "flavour": "Tin cans packed with Mojave sand",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "wonderglue",
+      "nv_name": "Wonderglue",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:slime_ball",
+          2
+        ]
+      ],
+      "flavour": "Wonderglue, now slimier",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "duct_tape",
+      "nv_name": "Duct Tape",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:string",
+          4
+        ]
+      ],
+      "flavour": "Duct tape unrolled into string",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "prewar_book",
+      "nv_name": "Pre-War Book",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:book",
+          2
+        ]
+      ],
+      "flavour": "Pre-War books, rebound",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "scrap_electronics",
+      "nv_name": "Scrap Electronics",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:redstone",
+          8
+        ]
+      ],
+      "flavour": "Circuit boards ground into redstone",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "sensor_module",
+      "nv_name": "Sensor Module",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:observer",
+          1
+        ]
+      ],
+      "flavour": "A sensor module that keeps watching",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "fission_battery",
+      "nv_name": "Fission Battery",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:glowstone",
+          4
+        ]
+      ],
+      "flavour": "Fission batteries that still glow",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "nuka_bottle",
+      "nv_name": "Empty Nuka-Cola Bottle",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:glass",
+          4
+        ]
+      ],
+      "flavour": "Nuka-Cola bottles melted into glass",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "coffee_mug",
+      "nv_name": "Coffee Mug",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:terracotta",
+          8
+        ]
+      ],
+      "flavour": "Coffee mugs fired into terracotta",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "cigarette_carton",
+      "nv_name": "Carton of Cigarettes",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:oak_planks",
+          16
+        ]
+      ],
+      "flavour": "Cardboard pressed into planks",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "hot_plate",
+      "nv_name": "Hot Plate",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:furnace",
+          1
+        ]
+      ],
+      "flavour": "A hot plate, now a furnace",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "conductor",
+      "nv_name": "Conductor",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:copper_ingot",
+          4
+        ]
+      ],
+      "flavour": "Conductors stripped for copper",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "lunchbox",
+      "nv_name": "Lunchbox",
+      "nv_edid": "",
+      "nv_type": "MISC",
+      "gives": [
+        [
+          "minecraft:chest",
+          1
+        ]
+      ],
+      "flavour": "A lunchbox big enough to live in",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    }
+  ]
+}

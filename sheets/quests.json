@@ -1,0 +1,46 @@
+{
+  "sheet": "quests",
+  "about": "New Vegas quests whose completion drops a Fallout-themed chest beside the player in Minecraft (once per Minecraft world).",
+  "columns": {
+    "id": "row id",
+    "nv_name": "quest name in game (FULL), used to resolve the form ID",
+    "nv_edid": "EditorID if known",
+    "chest": "chests.id",
+    "message": "message when the chest lands",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "kick_in_the_head",
+      "nv_name": "Ain't That a Kick in the Head",
+      "nv_edid": "",
+      "chest": "doc_mitchell",
+      "message": "Doc Mitchell left you a care package.",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "back_in_the_saddle",
+      "nv_name": "Back in the Saddle",
+      "nv_edid": "",
+      "chest": "sunny_smiles",
+      "message": "Sunny Smiles packed you a hunting kit.",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "ghost_town_gunfight",
+      "nv_name": "Ghost Town Gunfight",
+      "nv_edid": "",
+      "chest": "goodsprings_militia",
+      "message": "Goodsprings thanks you with a militia crate.",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    },
+    {
+      "id": "they_went_that_a_way",
+      "nv_name": "They Went That-a-Way",
+      "nv_edid": "",
+      "chest": "mojave_express",
+      "message": "A Mojave Express crate caught up with you.",
+      "verified": "no: resolved from the player's own FalloutNV.esm at launch (launcher writes osl-resolve.log)"
+    }
+  ]
+}

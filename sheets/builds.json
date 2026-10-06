@@ -1,0 +1,52 @@
+{
+  "sheet": "builds",
+  "about": "Things you build in the Mojave with Minecraft blocks that unlock a Courier perk. Minecraft checks around the player every PERK_SYNC_SECONDS; once found, the perk stays unlocked for that Minecraft world.",
+  "columns": {
+    "id": "row id",
+    "name": "what the player builds (shown in messages)",
+    "rule": "detector in BuildDetector.java",
+    "params": "detector settings",
+    "perk": "perks.id it unlocks",
+    "hint": "how the game describes it to the player",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "farm",
+      "name": "a farm",
+      "rule": "farmland_with_crops",
+      "params": {
+        "radius": 12,
+        "min": 8
+      },
+      "perk": "homestead",
+      "hint": "8 tilled farmland blocks with crops planted",
+      "verified": "no: BuildDetectorTest passes; in-world check still to do"
+    },
+    {
+      "id": "house",
+      "name": "a house",
+      "rule": "bed_door_roof",
+      "params": {
+        "radius": 12,
+        "door_within": 6,
+        "roof_within": 4
+      },
+      "perk": "home_sweet_home",
+      "hint": "a bed with a door nearby and a roof over it",
+      "verified": "test: BuildDetectorTest + dev client (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06))"
+    },
+    {
+      "id": "beacon",
+      "name": "a beacon",
+      "rule": "active_beacon",
+      "params": {
+        "radius": 16,
+        "min_level": 1
+      },
+      "perk": "beacon_of_the_mojave",
+      "hint": "a beacon on a pyramid, lit",
+      "verified": "no: BuildDetectorTest passes; in-world check still to do"
+    }
+  ]
+}
