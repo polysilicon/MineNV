@@ -46,3 +46,7 @@ Tests: `cd minecraft && ./gradlew test` (build detection), `python3 tools/fake_n
 
 Nothing from Bethesda's or Mojang's files is shipped. Prism downloads Minecraft with your own account, and the
 launcher reads New Vegas data from your own copy.
+
+## License and remixing
+Mojavecraft's own code, sheets and tools are MIT-licensed (see `LICENSE`), and remixes are welcome, on Melty too.
+Bundled parts keep their own licenses (see `CREDITS.md` and `THIRD-PARTY-NOTICES.md`).

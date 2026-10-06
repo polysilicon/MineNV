@@ -8,6 +8,7 @@ be added later.
 - Idea: two linked worlds (option 3 of 4).
 - Link: Minecraft building pays off in New Vegas; New Vegas quests unlock Minecraft loot (option 4).
 - Solo now, friends later (option 4). v1 scope: the full two-way version (option 4).
+- License: MIT, remixes allowed on Melty (user picked option 1).
 - The user asked for Minecraft drawn **inside** New Vegas like the other Minecraft mashups, then chose
   **"Minecraft in the Mojave"** (option 2): Steve's hotbar and hand in the Courier's view, Minecraft blocks placed
   and broken on Mojave ground. You cannot dig into New Vegas terrain, so the economy runs the other way:
