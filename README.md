@@ -1,6 +1,6 @@
-# Overworld Supply Line
+# Mojavecraft
 
-Minecraft in the Mojave: a Fallout: New Vegas x Minecraft: Java Edition mashup.
+Steve's hotbar in the Courier's hands: Minecraft blocks, built into New Vegas. A Fallout: New Vegas x Minecraft: Java Edition mashup (repository: MineNV; internal name Overworld Supply Line).
 
 You play New Vegas. Minecraft runs hidden next to it, follows New Vegas's camera, and its picture is drawn inside
 New Vegas, so Minecraft blocks stand in the Mojave and New Vegas's own ground, rocks and roofs hold them up.

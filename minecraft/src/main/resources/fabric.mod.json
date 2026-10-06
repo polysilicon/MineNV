@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "osl",
 	"version": "${version}",
-	"name": "Overworld Supply Line",
+	"name": "Mojavecraft",
 	"description": "Minecraft in the Mojave: runs hidden next to Fallout: New Vegas, follows its camera, builds on its ground, and hands its picture back to be drawn inside New Vegas. New Vegas junk becomes Minecraft items, Minecraft builds unlock Courier perks, New Vegas quests drop Minecraft chests.",
 	"authors": ["polysilicon"],
 	"contributors": ["rehan and universal-modder contributors (passthrough base, MIT)"],

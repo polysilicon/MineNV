@@ -1,9 +1,10 @@
-# Overworld Supply Line: mod log
+# Mojavecraft (MineNV): mod log
 
 Fallout: New Vegas x Minecraft: Java Edition mashup for Melty. Solo first, built so a shared Minecraft world can
 be added later.
 
 ## Decisions (with the user, 2026-10-06)
+- Listing: title "Mojavecraft", tagline "Steve's hotbar in the Courier's hands: Minecraft blocks, built into New Vegas." (user picked option 3).
 - Idea: two linked worlds (option 3 of 4).
 - Link: Minecraft building pays off in New Vegas; New Vegas quests unlock Minecraft loot (option 4).
 - Solo now, friends later (option 4). v1 scope: the full two-way version (option 4).
