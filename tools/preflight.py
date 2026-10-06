@@ -140,7 +140,7 @@ def main(argv):
         if r["mode"] not in ("always", "build"):
             errors.append(f"keys.{r['id']}.mode: '{r['mode']}'")
         if a in ("toggle_build",):
-            need = "build"
+            need = "cam"
         elif a == "salvage":
             need = "give"
         else:

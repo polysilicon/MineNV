@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "mode": "installed",
+  "games": [
+    {"slug": "fallout-new-vegas", "role": "primary"},
+    {"slug": "minecraft-java", "role": "companion"}
+  ],
+  "components": [
+    {"id": "main", "fileName": "OverworldSupplyLine-*.zip", "label": "Overworld Supply Line (New Vegas)", "kind": "main", "required": true},
+    {"id": "minecraft", "fileName": "OverworldSupplyLine-Minecraft-*.zip", "label": "Minecraft for Overworld Supply Line (Prism Launcher instance)", "kind": "extra", "required": true}
+  ],
+  "requirements": [
+    {"kind": "loader", "id": "nvse"}
+  ],
+  "mappings": [
+    {"component": "main", "from": "Data/", "to": "{game}/Data"},
+    {"component": "main", "from": "OSL/", "to": "{managed}"},
+    {"component": "minecraft", "from": "", "to": "{localappdata}/OverworldSupplyLine"}
+  ],
+  "launch": {
+    "kind": "exe",
+    "path": "{managed}/osl-launch.exe",
+    "args": ["--fnv", "{game}", "--mc", "{localappdata}/OverworldSupplyLine"],
+    "cwd": "{game}"
+  },
+  "setup": {
+    "label": "Minecraft",
+    "launch": {"kind": "exe", "path": "{localappdata}/OverworldSupplyLine/Prism/prismlauncher.exe", "args": ["--launch", "OverworldSupplyLine"]},
+    "done": {"file": "{localappdata}/OverworldSupplyLine/Prism/instances/OverworldSupplyLine/.minecraft/logs/latest.log", "contains": "OSL link listening"}
+  },
+  "runtimeData": ["{localappdata}/OverworldSupplyLine/Prism/instances/OverworldSupplyLine/.minecraft"],
+  "notes": {
+    "firstLaunch": "The first Play opens Prism Launcher: sign in with the Microsoft account that owns Minecraft: Java Edition. Prism then downloads Minecraft and Java once (about 1 GB). After that, Play starts both games and Minecraft stays hidden behind New Vegas."
+  }
+}

@@ -20,7 +20,22 @@ constexpr uint32_t ADDR_TES_TERRAIN_HEIGHT = 0x4572E0;  // TES::GetTerrainHeight
 constexpr uint32_t ADDR_TES_PICK_OBJECT = 0x458440;  // TES::PickObject(RayCastData*, bool) thiscall
 constexpr uint32_t ADDR_DX9_RENDERER = 0x11F4748;  // NiDX9Renderer**
 constexpr uint32_t ADDR_DX9_DEVICE_OFFSET = 0x288;  // NiDX9Renderer::pkD3DDevice9 field offset
+constexpr uint32_t ADDR_SCENE_GRAPH = 0x11DEB7C;  // SceneGraph** (the world scene)
+constexpr uint32_t ADDR_SCENE_GRAPH_CAMERA = 0xAC;  // SceneGraph::camera offset (NiCamera*)
 constexpr uint32_t ADDR_PLAYER_FOV = 0x670;  // PlayerCharacter::worldFOV (degrees, horizontal)
+constexpr uint32_t ADDR_CAMERA_WORLD_ROTATE = 0x68;  // NiAVObject::m_transformWorld.rotate (NiMatrix33, row-major)
+constexpr uint32_t ADDR_CAMERA_WORLD_TRANSLATE = 0x8C;  // NiAVObject::m_transformWorld.translate
+constexpr uint32_t ADDR_CAMERA_FRUSTUM = 0xDC;  // NiCamera::frustum (left,right,top,bottom,near,far,ortho)
+constexpr uint32_t ADDR_MENU_MODE = 0x702360;  // bool IsMenuMode() cdecl
+constexpr uint32_t ADDR_QUEUE_UI_MESSAGE = 0x7052F0;  // QueueUIMessage(text, icon, iconPath, sound, seconds, unk) cdecl
+constexpr uint32_t ADDR_FORM_MAP = 0x11C54C0;  // NiTPointerMap<UInt32, TESForm*>* (all forms by ID)
+constexpr uint32_t ADDR_INPUT_GLOBALS = 0x11F35CC;  // OSInputGlobals**
+constexpr uint32_t ADDR_REF_PARENT_CELL = 0x40;  // TESObjectREFR::parentCell offset
+constexpr uint32_t ADDR_CELL_FLAGS = 0x24;  // TESObjectCELL::cellFlags offset (bit 0 = interior)
+constexpr uint32_t ADDR_CELL_WORLDSPACE = 0xC0;  // TESObjectCELL::worldSpace offset
+constexpr uint32_t ADDR_FORM_REFID = 0x0C;  // TESForm::refID offset
+constexpr uint32_t ADDR_RENDERER_WINDOW = 0x3BC;  // NiDX9Renderer::deviceWindow offset
+constexpr uint32_t ADDR_RAY_FILTER_CHAIN = 0x68;  // player +0x68 -> +0x138 -> +0x594 -> +8 -> +0x2C: the player's collision filter (rays ignore the Courier)
 
 // keys.json
 struct Key { int code; const char* name; bool buildOnly; const char* action; };
@@ -42,23 +57,24 @@ constexpr Key KEYS[] = {
 	{10, "9", true, "slot:8"},
 };
 
-// loot.json: gives are sent to Minecraft as JSON
-struct Loot { const char* id; const char* nvName; const char* givesJson; const char* flavour; };
+// loot.json
+struct Give { const char* item; int count; };
+struct Loot { const char* id; const char* nvName; Give gives[4]; int giveCount; const char* flavour; };
 constexpr Loot LOOT[] = {
-	{"scrap_metal", "Scrap Metal", "[[\"minecraft:iron_ingot\", 2], [\"minecraft:stone_bricks\", 16]]", "Scrap metal hammered into bricks and ingots"},
-	{"tin_can", "Tin Can", "[[\"minecraft:sandstone\", 8]]", "Tin cans packed with Mojave sand"},
-	{"wonderglue", "Wonderglue", "[[\"minecraft:slime_ball\", 2]]", "Wonderglue, now slimier"},
-	{"duct_tape", "Duct Tape", "[[\"minecraft:string\", 4]]", "Duct tape unrolled into string"},
-	{"prewar_book", "Pre-War Book", "[[\"minecraft:book\", 2]]", "Pre-War books, rebound"},
-	{"scrap_electronics", "Scrap Electronics", "[[\"minecraft:redstone\", 8]]", "Circuit boards ground into redstone"},
-	{"sensor_module", "Sensor Module", "[[\"minecraft:observer\", 1]]", "A sensor module that keeps watching"},
-	{"fission_battery", "Fission Battery", "[[\"minecraft:glowstone\", 4]]", "Fission batteries that still glow"},
-	{"nuka_bottle", "Empty Nuka-Cola Bottle", "[[\"minecraft:glass\", 4]]", "Nuka-Cola bottles melted into glass"},
-	{"coffee_mug", "Coffee Mug", "[[\"minecraft:terracotta\", 8]]", "Coffee mugs fired into terracotta"},
-	{"cigarette_carton", "Carton of Cigarettes", "[[\"minecraft:oak_planks\", 16]]", "Cardboard pressed into planks"},
-	{"hot_plate", "Hot Plate", "[[\"minecraft:furnace\", 1]]", "A hot plate, now a furnace"},
-	{"conductor", "Conductor", "[[\"minecraft:copper_ingot\", 4]]", "Conductors stripped for copper"},
-	{"lunchbox", "Lunchbox", "[[\"minecraft:chest\", 1]]", "A lunchbox big enough to live in"},
+	{"scrap_metal", "Scrap Metal", {{"minecraft:iron_ingot", 2}, {"minecraft:stone_bricks", 16}}, 2, "Scrap metal hammered into bricks and ingots"},
+	{"tin_can", "Tin Can", {{"minecraft:sandstone", 8}}, 1, "Tin cans packed with Mojave sand"},
+	{"wonderglue", "Wonderglue", {{"minecraft:slime_ball", 2}}, 1, "Wonderglue, now slimier"},
+	{"duct_tape", "Duct Tape", {{"minecraft:string", 4}}, 1, "Duct tape unrolled into string"},
+	{"prewar_book", "Pre-War Book", {{"minecraft:book", 2}}, 1, "Pre-War books, rebound"},
+	{"scrap_electronics", "Scrap Electronics", {{"minecraft:redstone", 8}}, 1, "Circuit boards ground into redstone"},
+	{"sensor_module", "Sensor Module", {{"minecraft:observer", 1}}, 1, "A sensor module that keeps watching"},
+	{"fission_battery", "Fission Battery", {{"minecraft:glowstone", 4}}, 1, "Fission batteries that still glow"},
+	{"nuka_bottle", "Empty Nuka-Cola Bottle", {{"minecraft:glass", 4}}, 1, "Nuka-Cola bottles melted into glass"},
+	{"coffee_mug", "Coffee Mug", {{"minecraft:terracotta", 8}}, 1, "Coffee mugs fired into terracotta"},
+	{"cigarette_carton", "Carton of Cigarettes", {{"minecraft:oak_planks", 16}}, 1, "Cardboard pressed into planks"},
+	{"hot_plate", "Hot Plate", {{"minecraft:furnace", 1}}, 1, "A hot plate, now a furnace"},
+	{"conductor", "Conductor", {{"minecraft:copper_ingot", 4}}, 1, "Conductors stripped for copper"},
+	{"lunchbox", "Lunchbox", {{"minecraft:chest", 1}}, 1, "A lunchbox big enough to live in"},
 };
 
 // perks.json

@@ -101,11 +101,14 @@ def cpp():
             for r in sheet("keys")]
     out += ["};", ""]
 
-    out += ["// loot.json: gives are sent to Minecraft as JSON",
-            "struct Loot { const char* id; const char* nvName; const char* givesJson; const char* flavour; };",
+    out += ["// loot.json", "struct Give { const char* item; int count; };",
+            "struct Loot { const char* id; const char* nvName; Give gives[4]; int giveCount; const char* flavour; };",
             "constexpr Loot LOOT[] = {"]
     for r in sheet("loot"):
-        out.append(f"\t{{{cstr(r['id'])}, {cstr(r['nv_name'])}, {cstr(json.dumps(r['gives']))}, {cstr(r['flavour'])}}},")
+        if len(r["gives"]) > 4:
+            raise SystemExit(f"loot.{r['id']}: at most 4 gives")
+        gv = ", ".join(f"{{{cstr(i)}, {n}}}" for i, n in r["gives"])
+        out.append(f"\t{{{cstr(r['id'])}, {cstr(r['nv_name'])}, {{{gv}}}, {len(r['gives'])}, {cstr(r['flavour'])}}},")
     out += ["};", ""]
 
     out += ["// perks.json", "struct PerkItem { const char* nvName; int count; };",

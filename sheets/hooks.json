@@ -72,15 +72,24 @@
       "target": "IDirect3DDevice9::Present",
       "value": "17",
       "use": "composite Minecraft's frame before the picture is shown",
-      "verified": "docs: d3d9.h vtable order"
+      "verified": "superseded: xNVSE's kMessage_OnFramePresent fires right before Present (row frame_present), no vtable hook needed"
     },
     {
-      "id": "scene_camera",
+      "id": "scene_graph",
       "side": "nv",
       "kind": "address",
-      "target": "main NiCamera (SceneGraph camera)",
-      "value": "*(SceneGraph**)0x11DEB7C, camera at +0xAC",
-      "use": "camera position, rotation, FOV for Minecraft",
+      "target": "SceneGraph** (the world scene)",
+      "value": "0x11DEB7C",
+      "use": "the main camera",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/hooks.h DoRenderFrameHook (mov ecx, ds:0x11DEB7C; mov ecx,[ecx+0xAC]) + netimmerse.h SceneGraph::camera // AC"
+    },
+    {
+      "id": "scene_graph_camera",
+      "side": "nv",
+      "kind": "address",
+      "target": "SceneGraph::camera offset (NiCamera*)",
+      "value": "0xAC",
+      "use": "camera position, rotation, frustum for Minecraft",
       "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/hooks.h DoRenderFrameHook (mov ecx, ds:0x11DEB7C; mov ecx,[ecx+0xAC]) + netimmerse.h SceneGraph::camera // AC"
     },
     {
@@ -169,7 +178,7 @@
       "side": "nv",
       "kind": "address",
       "target": "NiAVObject::m_transformWorld.rotate (NiMatrix33, row-major)",
-      "value": "+0x68",
+      "value": "0x68",
       "use": "camera orientation",
       "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h m_transformWorld // 68"
     },
@@ -178,7 +187,7 @@
       "side": "nv",
       "kind": "address",
       "target": "NiAVObject::m_transformWorld.translate",
-      "value": "+0x8C",
+      "value": "0x8C",
       "use": "camera position",
       "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/hooks.h reads [camera+0x8C..0x94]"
     },
@@ -187,7 +196,7 @@
       "side": "nv",
       "kind": "address",
       "target": "NiCamera::frustum (left,right,top,bottom,near,far,ortho)",
-      "value": "+0xDC",
+      "value": "0xDC",
       "use": "vertical FOV for Minecraft and New Vegas depth range for the composite",
       "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h NiCamera frustum // 0DC"
     },
@@ -199,6 +208,114 @@
       "value": "ZFUNC LESSEQUAL, ZWRITE off; fallback ZFUNC ALWAYS when the depth surface doesn't match the back buffer",
       "use": "New Vegas objects in front hide Minecraft blocks",
       "verified": "no: needs the running game (depth surface at Present may be cleared or MSAA)"
+    },
+    {
+      "id": "menu_mode",
+      "side": "nv",
+      "kind": "address",
+      "target": "bool IsMenuMode() cdecl",
+      "value": "0x702360",
+      "use": "no keys or composite logic while a New Vegas menu or the console is open",
+      "verified": "code: xNVSE source (xNVSE/NVSE) Hooks_Gameplay.cpp CdeclCall<bool>(0x702360)"
+    },
+    {
+      "id": "queue_ui_message",
+      "side": "nv",
+      "kind": "address",
+      "target": "QueueUIMessage(text, icon, iconPath, sound, seconds, unk) cdecl",
+      "value": "0x7052F0",
+      "use": "corner messages (toasts, salvage, perks)",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameAPI.cpp"
+    },
+    {
+      "id": "form_map",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiTPointerMap<UInt32, TESForm*>* (all forms by ID)",
+      "value": "0x11C54C0",
+      "use": "form ID -> TESForm* for script arguments",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/jip_core.cpp LookupFormByRefID"
+    },
+    {
+      "id": "input_globals",
+      "side": "nv",
+      "kind": "address",
+      "target": "OSInputGlobals**",
+      "value": "0x11F35CC",
+      "use": "mouse movement for Minecraft's screen cursor (+0x1B24 dx, +0x1B28 dy)",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameOSDepend.h"
+    },
+    {
+      "id": "ref_parent_cell",
+      "side": "nv",
+      "kind": "address",
+      "target": "TESObjectREFR::parentCell offset",
+      "value": "0x40",
+      "use": "which cell the Courier is in",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h parentCell // 40"
+    },
+    {
+      "id": "cell_flags",
+      "side": "nv",
+      "kind": "address",
+      "target": "TESObjectCELL::cellFlags offset (bit 0 = interior)",
+      "value": "0x24",
+      "use": "no build mode indoors",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameForms.h cellFlags // 24"
+    },
+    {
+      "id": "cell_worldspace",
+      "side": "nv",
+      "kind": "address",
+      "target": "TESObjectCELL::worldSpace offset",
+      "value": "0xC0",
+      "use": "worldspace form ID -> Minecraft strip",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameForms.h worldSpace // C0"
+    },
+    {
+      "id": "form_refid",
+      "side": "nv",
+      "kind": "address",
+      "target": "TESForm::refID offset",
+      "value": "0x0C",
+      "use": "form IDs",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameForms.h refID // 0C"
+    },
+    {
+      "id": "renderer_window",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiDX9Renderer::deviceWindow offset",
+      "value": "0x3BC",
+      "use": "keys only count while New Vegas's window is in front",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h deviceWindow // 3BC"
+    },
+    {
+      "id": "ray_filter_chain",
+      "side": "nv",
+      "kind": "address",
+      "target": "player +0x68 -> +0x138 -> +0x594 -> +8 -> +0x2C: the player's collision filter (rays ignore the Courier)",
+      "value": "0x68",
+      "use": "ground ray casts",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/jip_core.cpp _GetRayCastObject"
+    },
+    {
+      "id": "frame_present",
+      "side": "nv",
+      "kind": "api",
+      "target": "NVSEMessagingInterface kMessage_OnFramePresent (data: int loadingScreen)",
+      "value": "xNVSE message",
+      "use": "send the camera and composite Minecraft's frame, once per shown frame",
+      "verified": "code: xNVSE source (xNVSE/NVSE) Hooks_Gameplay.cpp DisplayFrameHook"
+    },
+    {
+      "id": "controls_alt",
+      "side": "nv",
+      "kind": "api",
+      "target": "NVSETogglePlayerControlsInterface Disable/EnablePlayerControlsAlt (per mod, not saved)",
+      "value": "kInterface_PlayerControls",
+      "use": "build mode: no attacking/aiming; Minecraft screen: no moving/looking",
+      "verified": "code: xNVSE source (xNVSE/NVSE) PluginAPI.h"
     }
   ]
 }

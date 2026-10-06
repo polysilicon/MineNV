@@ -55,6 +55,10 @@ public class OslClient implements ClientModInitializer {
 		"time set noon",
 		"weather clear"
 	);
+	/** Started by the launcher behind New Vegas: no window, and quit once New Vegas has gone. */
+	public static final boolean START_HIDDEN = Boolean.getBoolean("osl.startHidden");
+	private static final long QUIT_AFTER_NANOS = 30_000_000_000L;
+	private static boolean hidden;
 	private static boolean configured;
 	private static boolean worldRequested;
 	/** Server ticks until the setup commands run (the player isn't in the player list yet when JOIN fires). */
@@ -90,7 +94,24 @@ public class OslClient implements ClientModInitializer {
 		});
 	}
 
+	/** True while New Vegas is connected over the link. */
+	public static boolean linked() {
+		return HostLink.connections() > 0;
+	}
+
 	private static void tick(final Minecraft minecraft) {
+		if (START_HIDDEN && !hidden) {
+			hidden = true;
+			org.lwjgl.sdl.SDLVideo.SDL_HideWindow(minecraft.getWindow().handle());
+			Osl.LOG.info("window hidden: New Vegas shows Minecraft's picture");
+		}
+
+		if (START_HIDDEN && HostLink.everConnected() && !linked() && System.nanoTime() - HostLink.lastSeenNanos() > QUIT_AFTER_NANOS) {
+			Osl.LOG.info("New Vegas has gone: quitting");
+			minecraft.stop();
+			return;
+		}
+
 		// a death (the void) would leave the death screen over the host's picture: respawn straight away
 		ScreenCursor.tick(minecraft);
 		if (minecraft.player != null && minecraft.gui.screen() instanceof DeathScreen && --respawnIn <= 0) {

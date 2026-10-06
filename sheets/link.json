@@ -23,7 +23,7 @@
     {
       "id": "cam",
       "dir": "nv>mc",
-      "fields": "f frame, p [x,y,z] eye, r [yaw,pitch,roll] deg, fov vertical deg, fp first person, pl [x,y,z] feet, h body yaw, ws worldspace slot, build bool, w/h viewport px",
+      "fields": "f frame, p [x,y,z] eye, r [yaw,pitch,roll] deg, fov vertical deg, fp first person, pl [x,y,z] feet, h body yaw, ws worldspace form ID, build bool (build mode: Minecraft's hand, hotbar and crosshair show and take the mouse)",
       "when": "every New Vegas frame",
       "mc": "HostState.update",
       "nv": "Camera::Send",
@@ -93,15 +93,6 @@
       "verified": "test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06)"
     },
     {
-      "id": "build",
-      "dir": "nv>mc",
-      "fields": "on bool",
-      "when": "build key toggles",
-      "mc": "Mojave.setBuildMode (hand/hotbar shown, crosshair)",
-      "nv": "Input::ToggleBuild (holsters weapon, disables fire)",
-      "verified": "no: in game (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06) covers the Minecraft side)"
-    },
-    {
       "id": "give",
       "dir": "nv>mc",
       "fields": "items [[mc item, count],...], why text",
@@ -145,6 +136,15 @@
       "mc": "WorldBridge (changes)",
       "nv": "Props::Sync (invisible collision boxes)",
       "verified": "no: in game (test: tools/fake_newvegas.py against the dev client (18/18, 2026-10-06) covers the Minecraft side)"
+    },
+    {
+      "id": "view",
+      "dir": "nv>mc",
+      "fields": "w, h: New Vegas's picture size in pixels (Minecraft's window matches it, so both cameras have the same aspect)",
+      "when": "on connect and when the size changes",
+      "mc": "ClientInput.handle (view)",
+      "nv": "Plugin::SendView",
+      "verified": "no: in game"
     }
   ]
 }

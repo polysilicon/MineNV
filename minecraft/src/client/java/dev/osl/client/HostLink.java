@@ -23,6 +23,8 @@ import org.java_websocket.server.WebSocketServer;
  */
 public final class HostLink extends WebSocketServer {
 	private static HostLink instance;
+	private static volatile boolean everConnected;
+	private static volatile long lastSeenNanos = System.nanoTime();
 
 	private HostLink(final int port) {
 		super(new InetSocketAddress("127.0.0.1", port));
@@ -37,6 +39,19 @@ public final class HostLink extends WebSocketServer {
 		Osl.events = message -> instance.broadcast(message);
 	}
 
+	static int connections() {
+		HostLink link = instance;
+		return link == null ? 0 : link.getConnections().size();
+	}
+
+	static boolean everConnected() {
+		return everConnected;
+	}
+
+	static long lastSeenNanos() {
+		return lastSeenNanos;
+	}
+
 	@Override
 	public void onStart() {
 		// fixed words: the launcher and tests wait for this line in latest.log
@@ -46,6 +61,8 @@ public final class HostLink extends WebSocketServer {
 	@Override
 	public void onOpen(final WebSocket conn, final ClientHandshake handshake) {
 		Osl.LOG.info("New Vegas connected from {}", conn.getRemoteSocketAddress());
+		everConnected = true;
+		lastSeenNanos = System.nanoTime();
 		conn.send(String.format(Locale.ROOT, "{\"t\":\"hello\",\"v\":1,\"shm\":\"%s\",\"pid\":%d}",
 			FrameExporter.NAME.replace("\\", "\\\\"), ProcessHandle.current().pid()));
 		Economy.reportPerks();
@@ -54,6 +71,7 @@ public final class HostLink extends WebSocketServer {
 	@Override
 	public void onClose(final WebSocket conn, final int code, final String reason, final boolean remote) {
 		Osl.LOG.info("New Vegas disconnected ({} {})", code, reason);
+		lastSeenNanos = System.nanoTime();
 	}
 
 	@Override
