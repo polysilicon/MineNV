@@ -13,7 +13,7 @@ be added later.
   - New Vegas junk -> Minecraft items (Salvage key) [sheets/loot.json]
   - Minecraft builds in the Mojave (farm, house, beacon) -> Courier perks [sheets/builds.json, perks.json]
   - New Vegas quests -> Fallout-themed chests next to the player in Minecraft [sheets/quests.json, chests.json]
-- New repository `polysilicon/overworld-supply-line` (user creates it; the Claude app couldn't: 403).
+- Repository: `polysilicon/MineNV` (chosen by the user). `melty.json` at its root is the install recipe.
 
 ## Melty read-up (2026-10-06)
 - fallout-new-vegas: Melty installs xNVSE 6.4.9; launch `{game}/nvse_loader.exe`. 0 live mashups.
