@@ -16,6 +16,9 @@ constexpr int WORLDSPACE_SPACING = 100000;
 constexpr int BUILD_IN_INTERIORS = 0;
 constexpr int GROUND_FROM_TERRAIN_ONLY = 1;
 constexpr int DEPTH_TEST_DEFAULT = 0;
+constexpr float MC_TO_NV_DAMAGE = 8.0f;
+constexpr float NPC_RANGE = 64.0f;
+constexpr int NPC_SEND_MS = 100;
 constexpr uint32_t ADDR_PLAYER_SINGLETON = 0x11DEA3C;  // PlayerCharacter**
 constexpr uint32_t ADDR_TES_SINGLETON = 0x11DEA10;  // TES**
 constexpr uint32_t ADDR_TES_TERRAIN_HEIGHT = 0x4572E0;  // TES::GetTerrainHeight(NiPoint2*, float*) thiscall
@@ -44,6 +47,8 @@ constexpr uint32_t ADDR_NIAV_FLAGS = 0x30;  // NiAVObject::m_flags offset (bit 0
 constexpr uint32_t ADDR_PLAYER_NODE_1ST = 0x694;  // PlayerCharacter::node1stPerson offset
 constexpr uint32_t ADDR_PLAYER_THIRD_PERSON = 0x64A;  // PlayerCharacter::is3rdPerson offset
 constexpr uint32_t ADDR_TOGGLE_FIRST_PERSON = 0x950110;  // PlayerCharacter::ToggleFirstPerson(bool toggleON) thiscall
+constexpr uint32_t ADDR_PROCESS_MANAGER = 0x11E0E80;  // ProcessManager (static object; highActors tList<Actor> at +0x80: data, next)
+constexpr uint32_t ADDR_ACTOR_LIFE_STATE = 0x108;  // Actor::lifeState offset (1 dying, 2 dead)
 
 // keys.json
 struct Key { int code; const char* name; bool buildOnly; const char* action; };
@@ -196,6 +201,16 @@ constexpr KeyMap KEYMAP[] = {
 	{209, 78, true, "Page Down"},
 	{210, 73, true, "Insert"},
 	{211, 76, true, "Delete"},
+};
+
+// npc_eggs.json: names looked up in FalloutNV.esm (NPC_ records), first found wins
+struct NpcEgg { const char* id; const char* names[4]; int nameCount; };
+constexpr NpcEgg NPC_EGGS[] = {
+	{"ncr_ranger", {"NCR Ranger", "NCR Veteran Ranger", "NCR Ranger Patrol"}, 3},
+	{"ncr_trooper", {"NCR Trooper", "NCR Soldier"}, 2},
+	{"legionary", {"Legionary", "Recruit Legionary", "Prime Legionary", "Veteran Legionary"}, 4},
+	{"powder_ganger", {"Powder Ganger"}, 1},
+	{"fiend", {"Fiend"}, 1},
 };
 
 // quests.json

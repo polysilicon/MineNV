@@ -137,6 +137,38 @@
       "side": "mc",
       "source": "on every ground reset, Minecraft removes all barrier blocks this far around the player (y +-48): earlier sessions' stray ground",
       "verified": "no: fake-host test"
+    },
+    {
+      "id": "MC_TO_NV_DAMAGE",
+      "value": 8.0,
+      "type": "float",
+      "side": "nv",
+      "source": "a Minecraft hit of 1 (half a heart) does this much New Vegas damage: an iron sword (6) takes ~48, a level-1 NPC has ~100",
+      "verified": "no: tune in game"
+    },
+    {
+      "id": "NV_TO_MC_DAMAGE",
+      "value": 0.15,
+      "type": "float",
+      "side": "mc",
+      "source": "New Vegas damage to the Courier becomes this much Minecraft damage to Steve: a 20-damage shot is 3 (1.5 hearts); Steve's hearts are the real health",
+      "verified": "no: tune in game"
+    },
+    {
+      "id": "NPC_RANGE",
+      "value": 64.0,
+      "type": "float",
+      "side": "nv",
+      "source": "New Vegas actors within this many blocks get a Minecraft stand-in",
+      "verified": "design: chosen here"
+    },
+    {
+      "id": "NPC_SEND_MS",
+      "value": 100,
+      "type": "int",
+      "side": "nv",
+      "source": "how often the actor list goes to Minecraft (10 per second)",
+      "verified": "design: chosen here"
     }
   ]
 }

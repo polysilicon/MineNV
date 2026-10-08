@@ -17,4 +17,6 @@ std::vector<std::string> PollQuests(bool resend);
 void OnPerks(const std::vector<std::string> &on);
 /// Daily perks: give today's items if a new in-game day began.
 void Tick();
+/// A form named in the sheets, resolved by the launcher ("MISC", "Scrap Metal"), or null.
+TESForm *FindForm(const char *type, const char *name);
 }  // namespace economy

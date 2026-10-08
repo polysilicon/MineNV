@@ -424,6 +424,69 @@
       "value": "0x950110",
       "use": "back to first person when New Vegas switched to third",
       "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h ToggleFirstPerson (ThisCall 0x950110), jip_fn_miscellaneous.h Cmd_ToggleFirstPerson"
+    },
+    {
+      "id": "process_manager",
+      "side": "nv",
+      "kind": "address",
+      "target": "ProcessManager (static object; highActors tList<Actor> at +0x80: data, next)",
+      "value": "0x11E0E80",
+      "use": "New Vegas's active actors near the player",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameProcess.h ProcessManager::Get, highActors // 080; GameTypes.h tList Node {data, next}"
+    },
+    {
+      "id": "actor_life_state",
+      "side": "nv",
+      "kind": "address",
+      "target": "Actor::lifeState offset (1 dying, 2 dead)",
+      "value": "0x108",
+      "use": "no stand-ins for the dead",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h lifeState // 108"
+    },
+    {
+      "id": "npc_damage",
+      "side": "nv",
+      "kind": "script",
+      "target": "UDF {ref rActor, float fDmg, int iByPlayer}: rActor.DamageAV Health fDmg; StartCombat on the Courier if the player hit",
+      "value": "compiled once",
+      "use": "Minecraft hits hurt New Vegas NPCs",
+      "verified": "no: in game"
+    },
+    {
+      "id": "courier_health",
+      "side": "nv",
+      "kind": "script",
+      "target": "UDF: SetFunctionValue (GetAV Health); UDF {float f}: RestoreAV Health f",
+      "value": "compiled once",
+      "use": "New Vegas damage to the Courier goes to Steve and is healed back",
+      "verified": "no: in game"
+    },
+    {
+      "id": "npc_spawn",
+      "side": "nv",
+      "kind": "script",
+      "target": "UDF {ref rBase, float fx, fy, fz}: ref rNew = PlaceAtMe rBase 1; rNew.SetPos X/Y/Z",
+      "value": "compiled once",
+      "use": "New Vegas spawn eggs",
+      "verified": "no: in game"
+    },
+    {
+      "id": "mc_proxy",
+      "side": "mc",
+      "kind": "mixin",
+      "target": "LivingEntity.hurtServer/isPushable/pushEntities on stand-ins; Mob targetSelector accessor",
+      "value": "ProxyMixin, MobAccessor",
+      "use": "stand-ins take no damage themselves (it goes to New Vegas) and hostile mobs hunt them",
+      "verified": "code: universal-modder MobWar (GTA example), compiles on 26.3"
+    },
+    {
+      "id": "mc_egg_use",
+      "side": "mc",
+      "kind": "api",
+      "target": "Fabric UseBlockCallback",
+      "value": "fabric-events-interaction",
+      "use": "a New Vegas egg on a block spawns the NPC in New Vegas instead of a villager",
+      "verified": "no: fake-host test"
     }
   ]
 }

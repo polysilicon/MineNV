@@ -228,6 +228,11 @@ void OnPerks(const std::vector<std::string> &on)
 	}
 }
 
+TESForm *FindForm(const char *type, const char *name)
+{
+	return Form(type, name);
+}
+
 void Tick()
 {
 	if (!g_save.dailyUnlocked || !Compile())

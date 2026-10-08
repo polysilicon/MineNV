@@ -10,6 +10,11 @@ New Vegas, so Minecraft blocks stand in the Mojave and New Vegas's own ground, r
   Every Minecraft key works: mining and placing, hotbar, E inventory, Q drop, F5 camera, **T chat and / commands**.
   New Vegas keeps Esc (pause menu), Tab (Pip-Boy), the console key, **R** (open doors, talk, loot) and **B**
   (switch to New Vegas controls and back). Indoors New Vegas has the controls.
+- **Fights between the worlds (Minecraft mode):** Steve's sword, fists and arrows hurt New Vegas's people, and
+  Minecraft's zombies, skeletons, creepers and spiders go after them too. Hit someone and they fight back: New Vegas
+  damage to the Courier takes Steve's hearts.
+- **New Vegas spawn eggs:** `/mojave eggs` gives NCR Ranger, NCR Trooper, Legionary, Powder Ganger and Fiend eggs
+  (`/mojave egg <kind> [count]` for one kind). Use one on the ground and that New Vegas NPC appears there.
 - **Salvage (J):** New Vegas junk becomes Minecraft items. Scrap metal becomes stone bricks and iron, tin cans become
   sandstone, Wonderglue becomes slime balls, and so on (14 kinds of junk).
 - **Builds unlock Courier perks:** a farm (8 planted farmland) sends fresh food every in-game day, a house (bed,

@@ -1,0 +1,64 @@
+{
+  "sheet": "npc_eggs",
+  "about": "Minecraft spawn eggs that place a New Vegas NPC where you use them. The egg is a vanilla egg item with a custom name and custom_data {osl_npc:id}; using it on a block sends 'spawnnpc' to New Vegas, which places the NPC there. /mojave egg <id> [count] gives them.",
+  "columns": {
+    "id": "row id (also the /mojave egg argument)",
+    "name": "egg's name in Minecraft",
+    "nv_names": "New Vegas NPC names (FULL) to look for, in order",
+    "egg_item": "vanilla spawn egg it looks like",
+    "verified": "status"
+  },
+  "rows": [
+    {
+      "id": "ncr_ranger",
+      "name": "NCR Ranger Spawn Egg",
+      "nv_names": [
+        "NCR Ranger",
+        "NCR Veteran Ranger",
+        "NCR Ranger Patrol"
+      ],
+      "egg_item": "minecraft:pillager_spawn_egg",
+      "verified": "no: resolved by name from the player's FalloutNV.esm at launch (osl-launch.log); first name found is used"
+    },
+    {
+      "id": "ncr_trooper",
+      "name": "NCR Trooper Spawn Egg",
+      "nv_names": [
+        "NCR Trooper",
+        "NCR Soldier"
+      ],
+      "egg_item": "minecraft:villager_spawn_egg",
+      "verified": "no: resolved by name from the player's FalloutNV.esm at launch (osl-launch.log); first name found is used"
+    },
+    {
+      "id": "legionary",
+      "name": "Legionary Spawn Egg",
+      "nv_names": [
+        "Legionary",
+        "Recruit Legionary",
+        "Prime Legionary",
+        "Veteran Legionary"
+      ],
+      "egg_item": "minecraft:vindicator_spawn_egg",
+      "verified": "no: resolved by name from the player's FalloutNV.esm at launch (osl-launch.log); first name found is used"
+    },
+    {
+      "id": "powder_ganger",
+      "name": "Powder Ganger Spawn Egg",
+      "nv_names": [
+        "Powder Ganger"
+      ],
+      "egg_item": "minecraft:zombie_villager_spawn_egg",
+      "verified": "no: resolved by name from the player's FalloutNV.esm at launch (osl-launch.log); first name found is used"
+    },
+    {
+      "id": "fiend",
+      "name": "Fiend Spawn Egg",
+      "nv_names": [
+        "Fiend"
+      ],
+      "egg_item": "minecraft:evoker_spawn_egg",
+      "verified": "no: resolved by name from the player's FalloutNV.esm at launch (osl-launch.log); first name found is used"
+    }
+  ]
+}

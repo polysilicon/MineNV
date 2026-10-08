@@ -217,6 +217,42 @@
       "mc": "Economy.say (chat)",
       "nv": "Takeover::Say",
       "verified": "test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "npcs",
+      "dir": "nv>mc",
+      "fields": "a [[ref id, x, y, z feet], ...] living New Vegas actors near the Courier (worldspace coordinates, blocks)",
+      "when": "every NPC_SEND_MS in Minecraft mode",
+      "mc": "NpcWar.npcs (invisible villager stand-ins)",
+      "nv": "Combat::SendActors",
+      "verified": "no: fake-host test"
+    },
+    {
+      "id": "npchit",
+      "dir": "mc>nv",
+      "fields": "id ref id, d Minecraft damage, by 'player' or the mob's type",
+      "when": "Steve, his arrows or a Minecraft mob hits a stand-in",
+      "mc": "NpcWar.onProxyHit",
+      "nv": "Combat::OnHit (DamageAV Health d*MC_TO_NV_DAMAGE, StartCombat)",
+      "verified": "no: fake-host test + in game"
+    },
+    {
+      "id": "hurt",
+      "dir": "nv>mc",
+      "fields": "d New Vegas damage to the Courier",
+      "when": "the Courier's health dropped (it is restored right away: Steve's hearts are the health)",
+      "mc": "NpcWar.hurtPlayer (d*NV_TO_MC_DAMAGE)",
+      "nv": "Combat::WatchHealth",
+      "verified": "no: fake-host test + in game"
+    },
+    {
+      "id": "spawnnpc",
+      "dir": "mc>nv",
+      "fields": "kind npc_eggs.id, p [x,y,z] (worldspace coordinates, blocks)",
+      "when": "a New Vegas spawn egg is used on a block",
+      "mc": "NpcWar.useEgg",
+      "nv": "Combat::Spawn (PlaceAtMe + SetPos)",
+      "verified": "no: fake-host test + in game"
     }
   ]
 }

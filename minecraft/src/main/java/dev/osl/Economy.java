@@ -208,7 +208,7 @@ public final class Economy {
 	}
 
 	private static void give(final MinecraftServer s, final ServerPlayer player, final Sheets.Stack item) {
-		WorldBridge.command(String.format(Locale.ROOT, "give %s %s %d", player.getStringUUID(), item.item(), item.count()));
+		WorldBridge.command(String.format(Locale.ROOT, "execute as %s run give @s %s %d", player.getStringUUID(), item.item(), item.count()));
 	}
 
 	/** {"t":"quest","id":...}: New Vegas finished a quest. Its chest lands once per world. */

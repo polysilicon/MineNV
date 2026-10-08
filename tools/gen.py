@@ -72,6 +72,11 @@ def java():
     out += ["\t/** perks.json (names only: the New Vegas side applies them) */", "\tpublic record Perk(String id, String name) {", "\t}", ""]
     out.append("\tpublic static final Map<String, Perk> PERKS = Map.ofEntries(")
     out.append(",\n".join(f"\t\tMap.entry({jstr(r['id'])}, new Perk({jstr(r['id'])}, {jstr(r['name'])}))" for r in sheet("perks")))
+    out += ["\t);", ""]
+
+    out += ["\t/** npc_eggs.json */", "\tpublic record NpcEgg(String id, String name, String eggItem) {", "\t}", ""]
+    out.append("\tpublic static final Map<String, NpcEgg> NPC_EGGS = Map.ofEntries(")
+    out.append(",\n".join(f"\t\tMap.entry({jstr(r['id'])}, new NpcEgg({jstr(r['id'])}, {jstr(r['name'])}, {jstr(r['egg_item'])}))" for r in sheet("npc_eggs")))
     out += ["\t);", "}", ""]
     path = os.path.join(ROOT, "minecraft/src/main/java/dev/osl/Sheets.java")
     with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -127,6 +132,14 @@ def cpp():
     out += [f"\t{{{r['dik']}, {r['sdl']}, {'true' if r['owner'] == 'minecraft' else 'false'}, {cstr(r['name'])}}}," for r in sheet("keymap")]
     out += ["};", ""]
 
+    out += ["// npc_eggs.json: names looked up in FalloutNV.esm (NPC_ records), first found wins",
+            "struct NpcEgg { const char* id; const char* names[4]; int nameCount; };", "constexpr NpcEgg NPC_EGGS[] = {"]
+    for r in sheet("npc_eggs"):
+        if len(r["nv_names"]) > 4:
+            raise SystemExit(f"npc_eggs.{r['id']}: at most 4 names")
+        out.append(f"\t{{{cstr(r['id'])}, {{{', '.join(cstr(n) for n in r['nv_names'])}}}, {len(r['nv_names'])}}},")
+    out += ["};", ""]
+
     out += ["// quests.json", "struct Quest { const char* id; const char* nvName; };", "constexpr Quest QUESTS[] = {"]
     out += [f"\t{{{cstr(r['id'])}, {cstr(r['nv_name'])}}}," for r in sheet("quests")]
     out += ["};", "", "}  // namespace sheets", ""]
@@ -147,6 +160,9 @@ def go():
                 names.append(("ALCH", n))
     for r in sheet("quests"):
         names.append(("QUST", r["nv_name"]))
+    for r in sheet("npc_eggs"):
+        for n in r["nv_names"]:
+            names.append(("NPC_", n))
     out = [f"// {HEADER}", "package main", "", "// wanted: every New Vegas form the sheets name, found in FalloutNV.esm by record type and in-game name.",
            "var wanted = []wantedForm{"]
     seen = set()

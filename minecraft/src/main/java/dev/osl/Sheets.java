@@ -26,6 +26,8 @@ public final class Sheets {
 	public static final String STARTER_CHEST = "vault_tec_starter";
 	/** on every ground reset, Minecraft removes all barrier blocks this far around the player (y +-48): earlier sessions' stray ground */
 	public static final int BARRIER_SWEEP_RADIUS = 40;
+	/** New Vegas damage to the Courier becomes this much Minecraft damage to Steve: a 20-damage shot is 3 (1.5 hearts); Steve's hearts are the real health */
+	public static final double NV_TO_MC_DAMAGE = 0.15;
 
 	public record Stack(String item, int count) {
 	}
@@ -71,5 +73,17 @@ public final class Sheets {
 		Map.entry("homestead", new Perk("homestead", "Homestead")),
 		Map.entry("home_sweet_home", new Perk("home_sweet_home", "Home Sweet Home")),
 		Map.entry("beacon_of_the_mojave", new Perk("beacon_of_the_mojave", "Beacon of the Mojave"))
+	);
+
+	/** npc_eggs.json */
+	public record NpcEgg(String id, String name, String eggItem) {
+	}
+
+	public static final Map<String, NpcEgg> NPC_EGGS = Map.ofEntries(
+		Map.entry("ncr_ranger", new NpcEgg("ncr_ranger", "NCR Ranger Spawn Egg", "minecraft:pillager_spawn_egg")),
+		Map.entry("ncr_trooper", new NpcEgg("ncr_trooper", "NCR Trooper Spawn Egg", "minecraft:villager_spawn_egg")),
+		Map.entry("legionary", new NpcEgg("legionary", "Legionary Spawn Egg", "minecraft:vindicator_spawn_egg")),
+		Map.entry("powder_ganger", new NpcEgg("powder_ganger", "Powder Ganger Spawn Egg", "minecraft:zombie_villager_spawn_egg")),
+		Map.entry("fiend", new NpcEgg("fiend", "Fiend Spawn Egg", "minecraft:evoker_spawn_egg"))
 	);
 }

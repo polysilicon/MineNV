@@ -137,3 +137,21 @@ camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrai
 - Invisible placed blocks: the HUD overlay (drawn without depth test) shows, the world layer (depth-tested) doesn't
   -> the depth test against New Vegas's depth at Present hides it; off by default (bDepthTest=0) until the real scene
   depth is found (probably an INTZ copy of the main scene's depth before image-space effects).
+
+## 0.3.0: Minecraft vs New Vegas's people (2026-10-08)
+- Asked: Minecraft mobs and the player can hurt New Vegas NPCs; spawn eggs for New Vegas NPCs (NCR Ranger,
+  Legionary, Powder Ganger...).
+- New Vegas sends its living actors within 64 blocks every 100 ms (ProcessManager highActors, "npcs"); each gets an
+  invisible, AI-less villager stand-in in Minecraft (tag nv_npc). Hits on a stand-in from Steve, arrows or mobs go to
+  the real NPC ("npchit": DamageAV Health x8, StartCombat when Steve hit it); hits without an attacker (/kill, walls)
+  don't count. Hostile mobs get a target goal for stand-ins (brain-driven mobs like piglins don't join).
+- New Vegas damage to the Courier becomes damage to Steve ("hurt", x0.15) and the Courier is healed back; Steve
+  respawns where he died.
+- Spawn eggs: npc_eggs.json (5 kinds, base NPCs found by name in the player's FalloutNV.esm by the launcher);
+  `/mojave eggs`, `/mojave egg <kind> [count]`; use on a block, a mob or in the air -> "spawnnpc" -> PlaceAtMe.
+- Found while testing: `give <uuid>` gives nothing in 26.3, so salvage deliveries and the starter kit could have
+  arrived empty -> `execute as <uuid> run give @s`.
+- Dev client (tools: link script): proxies spawn and are removed when Minecraft mode ends; Steve's hit ->
+  npchit by player; zombie -> npchit by zombie; hurt 50 -> Steve damaged; egg on the ground / in the air ->
+  spawnnpc once per click. fake_newvegas.py 18/18; Wine harness: combat scripts compile, no crash, overlay drawn.
+- Not yet checked in the real game: the actor list, DamageAV/StartCombat, PlaceAtMe placement, health watching.

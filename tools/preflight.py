@@ -180,6 +180,8 @@ def main(argv):
             specs += [(f"loot.{r['id']}.gives", g[0]) for g in r["gives"]]
         for r in sheets["chests"]["rows"]:
             specs += [(f"chests.{r['id']}.items", g[0]) for g in r["items"]]
+        for r in sheets.get("npc_eggs", {"rows": []})["rows"]:
+            specs.append((f"npc_eggs.{r['id']}.egg_item", r["egg_item"]))
         for where, spec in specs:
             if base_item(spec) not in items:
                 errors.append(f"{where}: Minecraft 26.3 has no item '{base_item(spec)}'")

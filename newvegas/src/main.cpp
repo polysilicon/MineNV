@@ -17,6 +17,7 @@
 #include "pose.h"
 #include "sheets_gen.h"
 #include "takeover.h"
+#include "combat.h"
 #include "ws.h"
 
 namespace
@@ -314,6 +315,10 @@ void HandleLink()
 		std::string t = msg::Str(m, "t");
 		if (t == "me")
 			takeover::OnMe(m);
+		else if (t == "npchit")
+			combat::OnHit(m);
+		else if (t == "spawnnpc")
+			combat::OnSpawn(m);
 		else if (t == "perks")
 			economy::OnPerks(msg::StrList(m, "on"));
 		else if (t == "toast")
@@ -359,6 +364,10 @@ void MainLoop()
 	else if (!takeover::On() && g_wantTakeover && outdoors && g_link.connected() && g_linkAnnounced && !game::MenuMode())
 		takeover::Set(true);
 	takeover::Tick(g_screenOpen, Foreground() && !game::MenuMode());
+	if (takeover::On() && g_link.connected())
+		combat::Tick();
+	else
+		combat::Reset();
 	static DWORD lastStatus = 0;
 	if (nowTick - lastStatus > 30000)
 	{
@@ -514,6 +523,7 @@ __declspec(dllexport) bool NVSEPlugin_Load(NVSEInterface *nvse)
 	economy::Init(script, g_console, ser, g_handle, (g_dir + "osl_forms.ini").c_str());
 	g_messaging->RegisterListener(g_handle, "NVSE", OnMessage);
 	takeover::Init(script, g_console, g_controls, [](const std::string &m) { Send(m); });
+	combat::Init(script, [](const std::string &m) { Send(m); });
 	g_link.start("127.0.0.1", sheets::LINK_PORT);
 	logf("loaded; linking to Minecraft on 127.0.0.1:%d", sheets::LINK_PORT);
 	return true;

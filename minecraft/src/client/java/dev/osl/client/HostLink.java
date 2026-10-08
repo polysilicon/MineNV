@@ -98,6 +98,19 @@ public final class HostLink extends WebSocketServer {
 				case "give" -> Economy.give(stacks(m.getAsJsonArray("items")), m.has("why") ? m.get("why").getAsString() : "");
 				case "quest" -> Economy.questDone(m.get("id").getAsString());
 				case "say" -> Economy.say(m.get("text").getAsString());
+				case "npcs" -> {
+					JsonArray list = m.getAsJsonArray("a");
+					double[] flat = new double[list.size() * 4];
+					for (int i = 0; i < list.size(); i++) {
+						JsonArray e = list.get(i).getAsJsonArray();
+						for (int k = 0; k < 4; k++) {
+							flat[i * 4 + k] = e.get(k).getAsDouble();
+						}
+					}
+
+					dev.osl.NpcWar.npcs(flat);
+				}
+				case "hurt" -> dev.osl.NpcWar.hurt(m.get("d").getAsDouble());
 				case "devreset" -> {
 					if (Boolean.getBoolean("osl.allowCommands")) {
 						Economy.resetForTest();
