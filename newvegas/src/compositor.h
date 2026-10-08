@@ -21,4 +21,7 @@ void Present(IDirect3DDevice9 *device, bool show, const Settings &settings);
 void Shutdown();
 /// Last error, for the log ("" when fine).
 const char *Status();
+/// Frames drawn into New Vegas's picture so far, and whether Minecraft's shared memory is open.
+long long Draws();
+bool SharedOpen();
 }  // namespace compositor

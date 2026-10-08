@@ -169,8 +169,7 @@ std::string Salvage()
 		game::Message("Nothing to salvage. Junk like scrap metal, tin cans and Wonderglue becomes Minecraft blocks.");
 		return "";
 	}
-	std::string text = "Salvaged for Minecraft: " + what;
-	game::Message(text.c_str());
+	std::string text = "Salvaged for Minecraft: " + what;  // shown when Minecraft confirms (its toast)
 	logf("salvage: %s", what.c_str());
 	return "{\"t\":\"give\",\"items\":[" + items + "],\"why\":" + msg::Quote(text) + "}";
 }

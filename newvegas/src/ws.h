@@ -18,6 +18,8 @@ public:
 	int generation() const { return m_generation; }
 	bool send(const std::string &text);
 	bool poll(std::string &message);
+	/// Why the last connection attempt failed ("" after a successful connect), for the log.
+	std::string lastError();
 
 private:
 	void run();
@@ -34,6 +36,9 @@ private:
 	std::atomic<int> m_generation{0};
 	std::mutex m_sendLock;
 	std::mutex m_queueLock;
+	std::mutex m_errorLock;
+	std::string m_error;
+	void fail(const std::string &why);
 	std::deque<std::string> m_queue;
 	std::thread m_thread;
 	uint32_t m_maskState = 0x9E3779B9u;

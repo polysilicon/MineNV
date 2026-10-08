@@ -57,3 +57,17 @@ be added later.
   plugin says on screen when Minecraft isn't connected or drawing fails; README.txt in both zips.
 - Melty install reports (0.1.0 went live: 250 installs): 8 uninstalls stuck on Prism\archive.dll (EPERM) = Prism/
   Minecraft still running in the background. 0.1.1 also quits hidden Minecraft when New Vegas never links in 10 min.
+
+## Test 2 on the user's PC (0.1.1, 2026-10-08)
+- Minecraft music audible (Minecraft runs), still no "Minecraft is linked.".
+- Wine test harness (newvegas/tests/fakenv.cpp, run_fakenv.sh): loads the REAL plugin DLL with fake xNVSE interfaces,
+  fake game memory at the hooks.json addresses (the exe image spans 0x400000-0x1400000 like FalloutNV.exe), code
+  stubs at PickObject/terrain/MenuMode/QueueUIMessage, a real Direct3D 9 device (wined3d), simulated key presses.
+  Findings, all fixed in 0.1.2:
+  1. the plugin links fine, but "Minecraft is linked." was queued while New Vegas could still be in its main menu
+     (the player singleton exists there) and never shown again -> now shown once out of menus;
+  2. the composited picture was upside down -> rows flipped on upload (not in the shader);
+  3. Wine's HLSL compiler rejects ternaries in SM3 -> shader uses only float maths;
+  4. salvage message shown twice -> only Minecraft's confirmation;
+  5. Minecraft's music muted (block sounds kept).
+- Link failures are now logged with their reason; osl.log gets a status line every 30 s.

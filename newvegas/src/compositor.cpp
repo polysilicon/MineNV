@@ -33,13 +33,14 @@ float g_hostNear = 10.0f, g_hostFar = 300000.0f;
 float g_mcNear = 0.05f, g_mcFar = 1024.0f;
 int g_flags = 0;
 bool g_haveFrame = false;
+long long g_draws = 0;
 
 const char *kShader = R"(
 sampler2D sColor : register(s0);
 sampler2D sDepth : register(s1);
 sampler2D sOverlay : register(s2);
 float4 planes : register(c0);   // Minecraft near, far (blocks); New Vegas near, far (units)
-float4 opts : register(c1);     // x flip rows, y units per block, z depth bias (units), w depth test
+float4 opts : register(c1);     // x unused, y units per block, z depth bias (units), w depth test
 float4 halfPixel : register(c2);
 
 struct VsOut { float4 pos : POSITION; float2 uv : TEXCOORD0; };
@@ -51,7 +52,7 @@ VsOut vs_main(float2 p : POSITION)
 	return o;
 }
 
-float2 src(float2 uv) { return float2(uv.x, opts.x > 0.5 ? 1.0 - uv.y : uv.y); }
+float2 src(float2 uv) { return uv; }  // rows are already top-down (flipped on upload)
 
 struct PsOut { float4 c : COLOR0; float d : DEPTH; };
 PsOut ps_world(float2 uv : TEXCOORD0)
@@ -65,7 +66,7 @@ PsOut ps_world(float2 uv : TEXCOORD0)
 	float n = planes.z, f = planes.w;
 	PsOut o;
 	o.c = c;
-	o.d = opts.w > 0.5 ? saturate((f / (f - n)) * (1.0 - n / z)) : 0.0;
+	o.d = saturate((f / (f - n)) * (1.0 - n / z)) * opts.w;  // opts.w 0: depth test off (drawn at the near plane)
 	return o;
 }
 
@@ -194,14 +195,15 @@ bool EnsureTextures(IDirect3DDevice9 *device, int w, int h)
 	return true;
 }
 
-bool Upload(IDirect3DTexture9 *tex, const uint8_t *src, int w, int h)
+/// Copies one layer; Minecraft's rows are bottom-up (GL), Direct3D's top-down: flipped here, not in the shader.
+bool Upload(IDirect3DTexture9 *tex, const uint8_t *src, int w, int h, bool bottomUp)
 {
 	D3DLOCKED_RECT r;
 	if (FAILED(tex->LockRect(0, &r, nullptr, D3DLOCK_DISCARD)))
 		return false;
 	const size_t row = size_t(w) * 4;
 	for (int y = 0; y < h; y++)
-		std::memcpy(static_cast<uint8_t *>(r.pBits) + size_t(y) * r.Pitch, src + y * row, row);
+		std::memcpy(static_cast<uint8_t *>(r.pBits) + size_t(y) * r.Pitch, src + size_t(bottomUp ? h - 1 - y : y) * row, row);
 	tex->UnlockRect(0);
 	return true;
 }
@@ -234,7 +236,8 @@ void Fetch(IDirect3DDevice9 *device)
 	const uint8_t *data = view + lead;
 	if (EnsureTextures(device, w, h))
 	{
-		bool ok = Upload(g_color, data, w, h) && Upload(g_depth, data + layer, w, h) && Upload(g_overlay, data + 2 * layer, w, h);
+		const bool up = (At<int>(g_header, desc + 44) & kFlagBottomUp) != 0;
+		bool ok = Upload(g_color, data, w, h, up) && Upload(g_depth, data + layer, w, h, up) && Upload(g_overlay, data + 2 * layer, w, h, up);
 		// the slot must not have been rewritten while copying
 		if (ok && At<int64_t>(g_header, desc) == seq)
 		{
@@ -304,7 +307,7 @@ void Draw(IDirect3DDevice9 *device, const compositor::Settings &s)
 	device->SetTexture(2, g_overlay);
 
 	float planes[4] = {g_mcNear, g_mcFar, g_hostNear, g_hostFar};
-	float opts[4] = {(g_flags & kFlagBottomUp) ? 1.0f : 0.0f, sheets::UNITS_PER_BLOCK, s.depthBias, depthOk ? 1.0f : 0.0f};
+	float opts[4] = {0.0f, sheets::UNITS_PER_BLOCK, s.depthBias, depthOk ? 1.0f : 0.0f};
 	float half[4] = {1.0f / float(bb.Width ? bb.Width : 1), 1.0f / float(bb.Height ? bb.Height : 1), 0, 0};
 	device->SetPixelShaderConstantF(0, planes, 1);
 	device->SetPixelShaderConstantF(1, opts, 1);
@@ -372,7 +375,10 @@ void Present(IDirect3DDevice9 *device, bool show, const Settings &settings)
 	}
 	Fetch(device);
 	if (show && g_haveFrame)
+	{
 		Draw(device, settings);
+		g_draws++;
+	}
 }
 
 void Shutdown()
@@ -382,6 +388,16 @@ void Shutdown()
 	if (g_mapping) CloseHandle(g_mapping);
 	g_header = nullptr;
 	g_mapping = nullptr;
+}
+
+long long Draws()
+{
+	return g_draws;
+}
+
+bool SharedOpen()
+{
+	return g_header != nullptr;
 }
 
 const char *Status()

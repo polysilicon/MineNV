@@ -40,6 +40,8 @@ bool g_keyDown[512] = {};
 DWORD g_lastQuestPoll = 0, g_lastTick = 0;
 DWORD g_firstLoop = 0, g_lastLinkHint = 0;
 bool g_compositorWarned = false;
+bool g_linkAnnounced = false;
+std::string g_lastLinkError;
 
 // ground columns already sent, keyed by block x/z
 std::unordered_set<long long> g_probed;
@@ -268,11 +270,24 @@ void SendView(bool force)
 void HandleLink()
 {
 	bool fresh = g_link.generation() != g_linkGeneration;
+	std::string err = g_link.lastError();
+	if (err != g_lastLinkError)
+	{
+		g_lastLinkError = err;
+		if (!err.empty())
+			logf("link: %s", err.c_str());
+	}
+	if (g_link.connected() && !g_linkAnnounced && !game::MenuMode())
+	{
+		g_linkAnnounced = true;
+		game::Message("Minecraft is linked. Press B outdoors for build mode, J to salvage junk.");
+	}
+	if (!g_link.connected())
+		g_linkAnnounced = false;
 	if (fresh && g_link.connected())
 	{
 		g_linkGeneration = g_link.generation();
-		logf("link: connected to Minecraft");
-		game::Message("Minecraft is linked.");
+		logf("link: connected to Minecraft (generation %d)", g_linkGeneration);
 		SendView(true);
 		ResetGround();
 		for (const std::string &q : economy::PollQuests(true))
@@ -323,6 +338,13 @@ void MainLoop()
 		ResetGround();
 	}
 	PollKeys(outdoors);
+	static DWORD lastStatus = 0;
+	if (nowTick - lastStatus > 30000)
+	{
+		lastStatus = nowTick;
+		logf("status: linked=%d worldspace=%08X camera frames sent=%lld frames shared=%d drawn=%lld build=%d",
+			g_link.connected() ? 1 : 0, g_worldspace, g_frame, compositor::SharedOpen() ? 1 : 0, compositor::Draws(), g_build ? 1 : 0);
+	}
 	if (!g_link.connected())
 		return;
 	if (outdoors)

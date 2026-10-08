@@ -142,6 +142,8 @@ public class OslClient implements ClientModInitializer {
 		options.tutorialStep = TutorialSteps.NONE;
 		options.cloudStatus().set(CloudStatus.OFF);
 		options.bobView().set(false);
+		// New Vegas has its own music; Minecraft keeps its block and item sounds
+		options.getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource.MUSIC).set(0.0);
 		options.vignette().set(false);
 		options.improvedTransparency().set(false);
 		options.inactivityFpsLimit().set(InactivityFpsLimit.MINIMIZED);

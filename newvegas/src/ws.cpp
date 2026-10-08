@@ -34,6 +34,7 @@ bool WsClient::open()
 	inet_pton(AF_INET, m_host.c_str(), &addr.sin_addr);
 	if (connect(s, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) != 0)
 	{
+		fail("connect failed, WSA error " + std::to_string(WSAGetLastError()));
 		closesocket(s);
 		return false;
 	}
@@ -45,6 +46,7 @@ bool WsClient::open()
 		"\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n";
 	if (::send(s, request.data(), static_cast<int>(request.size()), 0) != static_cast<int>(request.size()))
 	{
+		fail("sending the handshake failed, WSA error " + std::to_string(WSAGetLastError()));
 		closesocket(s);
 		return false;
 	}
@@ -54,6 +56,7 @@ bool WsClient::open()
 	{
 		if (recv(s, &c, 1, 0) != 1)
 		{
+			fail("connection closed during the handshake after " + std::to_string(response.size()) + " bytes, WSA error " + std::to_string(WSAGetLastError()));
 			closesocket(s);
 			return false;
 		}
@@ -61,10 +64,12 @@ bool WsClient::open()
 	}
 	if (response.compare(0, 12, "HTTP/1.1 101") != 0)
 	{
+		fail("handshake refused: " + response.substr(0, response.find("\r\n")));
 		closesocket(s);
 		return false;
 	}
 	m_socket = s;
+	fail("");
 	return true;
 }
 
@@ -231,4 +236,16 @@ void WsClient::run()
 			break;
 		}
 	}
+}
+
+void WsClient::fail(const std::string &why)
+{
+	std::lock_guard<std::mutex> lock(m_errorLock);
+	m_error = why;
+}
+
+std::string WsClient::lastError()
+{
+	std::lock_guard<std::mutex> lock(m_errorLock);
+	return m_error;
 }

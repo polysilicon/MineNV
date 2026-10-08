@@ -207,7 +207,7 @@
       "target": "draw Minecraft's world layer as a full-screen quad writing oDepth, depth-tested against the device's current depth-stencil at Present",
       "value": "ZFUNC LESSEQUAL, ZWRITE off; fallback ZFUNC ALWAYS when the depth surface doesn't match the back buffer",
       "use": "New Vegas objects in front hide Minecraft blocks",
-      "verified": "no: needs the running game (depth surface at Present may be cleared or MSAA)"
+      "verified": "no: in the real game. Wine test (newvegas/tests/run_fakenv.sh): real plugin + real Direct3D 9 depth buffer composites Minecraft correctly (2026-10-08)"
     },
     {
       "id": "menu_mode",
@@ -306,7 +306,7 @@
       "target": "NVSEMessagingInterface kMessage_OnFramePresent (data: int loadingScreen)",
       "value": "xNVSE message",
       "use": "send the camera and composite Minecraft's frame, once per shown frame",
-      "verified": "code: xNVSE source (xNVSE/NVSE) Hooks_Gameplay.cpp DisplayFrameHook"
+      "verified": "code: xNVSE source (xNVSE/NVSE) Hooks_Gameplay.cpp DisplayFrameHook; Wine test drives it like xNVSE"
     },
     {
       "id": "controls_alt",
