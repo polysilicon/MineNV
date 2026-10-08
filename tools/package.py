@@ -92,8 +92,9 @@ Logs: Data/NVSE/Plugins/osl.log, osl-launch.log (here), and Prism's instance log
 
 OSL_INI = b"""; Overworld Supply Line: settings for the New Vegas plugin (Melty replaces this file on updates).
 [Composite]
-; 1: New Vegas objects in front hide Minecraft blocks. 0: Minecraft is always drawn on top.
-bDepthTest=1
+; 1: New Vegas objects in front hide Minecraft blocks (experimental: hid placed blocks on some PCs).
+; 0: Minecraft is always drawn on top.
+bDepthTest=0
 ; How far (game units, 70 = one block) behind New Vegas's surface a Minecraft block may still show.
 iDepthBiasUnits=2
 """

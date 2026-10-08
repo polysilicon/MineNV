@@ -24,6 +24,8 @@ public final class Sheets {
 	public static final int WORLDSPACE_SPACING = 100000;
 	/** chests.id given once when a new Minecraft world starts, so there is something to build with before the first salvage */
 	public static final String STARTER_CHEST = "vault_tec_starter";
+	/** on every ground reset, Minecraft removes all barrier blocks this far around the player (y +-48): earlier sessions' stray ground */
+	public static final int BARRIER_SWEEP_RADIUS = 40;
 
 	public record Stack(String item, int count) {
 	}

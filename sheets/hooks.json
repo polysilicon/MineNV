@@ -44,7 +44,7 @@
       "kind": "address",
       "target": "TES::PickObject(RayCastData*, bool) thiscall",
       "value": "0x458440",
-      "use": "downward ray casts for ground columns",
+      "use": "downward ray casts for ground columns (off: constants.GROUND_FROM_TERRAIN_ONLY)",
       "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/jip_core.cpp _GetRayCastObject"
     },
     {
@@ -207,7 +207,7 @@
       "target": "draw Minecraft's world layer as a full-screen quad writing oDepth, depth-tested against the device's current depth-stencil at Present",
       "value": "ZFUNC LESSEQUAL, ZWRITE off; fallback ZFUNC ALWAYS when the depth surface doesn't match the back buffer",
       "use": "New Vegas objects in front hide Minecraft blocks",
-      "verified": "no: in the real game. Wine test (newvegas/tests/run_fakenv.sh): real plugin + real Direct3D 9 depth buffer composites Minecraft correctly (2026-10-08)"
+      "verified": "failed in game (0.2.2): placed blocks invisible with the depth test on; off by default (constants.DEPTH_TEST_DEFAULT) until New Vegas's real scene depth is found"
     },
     {
       "id": "menu_mode",

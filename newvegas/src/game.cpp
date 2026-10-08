@@ -118,7 +118,7 @@ bool GroundBelow(const Vec3 &from, float range, float &zOut)
 	rc.layerInfo = (group & 0xFFFF0000u) | kRayLayer;
 
 	auto pick = reinterpret_cast<PickObject_t>(sheets::ADDR_TES_PICK_OBJECT);
-	if (pick(tes, &rc, true) && rc.hitFraction < 1.0f)
+	if (!sheets::GROUND_FROM_TERRAIN_ONLY && pick(tes, &rc, true) && rc.hitFraction < 1.0f)
 	{
 		zOut = (rc.pos0[2] + (rc.pos1[2] - rc.pos0[2]) * rc.hitFraction) / kHavokScale;
 		return true;

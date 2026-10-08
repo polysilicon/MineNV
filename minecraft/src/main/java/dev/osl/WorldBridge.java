@@ -78,6 +78,7 @@ public final class WorldBridge {
 		s.execute(() -> {
 			ServerLevel level = s.overworld();
 			placingGround = true;
+			sweepBarriers(s, level);
 			for (BlockPos pos : barriers) {
 				if (level.getBlockState(pos).is(Blocks.BARRIER)) {
 					level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
@@ -87,6 +88,37 @@ public final class WorldBridge {
 			placingGround = false;
 			barriers.clear();
 		});
+	}
+
+	/**
+	 * Every barrier around the player goes (players can't place barriers in survival, so they are all New Vegas's
+	 * ground, some from earlier sessions that this session never tracked); New Vegas probes the ground again after.
+	 */
+	private static void sweepBarriers(final MinecraftServer s, final ServerLevel level) {
+		ServerPlayer player = s.getPlayerList().getPlayers().isEmpty() ? null : s.getPlayerList().getPlayers().get(0);
+		if (player == null) {
+			return;
+		}
+
+		BlockPos c = player.blockPosition();
+		int r = Sheets.BARRIER_SWEEP_RADIUS;
+		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+		int removed = 0;
+		for (int x = -r; x <= r; x++) {
+			for (int z = -r; z <= r; z++) {
+				for (int y = -48; y <= 48; y++) {
+					p.set(c.getX() + x, c.getY() + y, c.getZ() + z);
+					if (level.isLoaded(p) && level.getBlockState(p).is(Blocks.BARRIER)) {
+						level.setBlock(p, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+						removed++;
+					}
+				}
+			}
+		}
+
+		if (removed > 0) {
+			Osl.LOG.info("ground reset: removed {} barrier blocks around the player", removed);
+		}
 	}
 
 	/** Run a command as the server (op). Results go to the log, not to chat (send_command_feedback is off). */

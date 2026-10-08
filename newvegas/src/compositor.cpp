@@ -371,7 +371,7 @@ void Draw(IDirect3DDevice9 *device, const compositor::Settings &s)
 	if (!loggedDepth)
 	{
 		loggedDepth = true;
-		logf("compositor: back buffer %ux%u, depth test %s", bb.Width, bb.Height, depthOk ? "on" : "off (depth surface doesn't match)");
+		logf("compositor: back buffer %ux%u, depth test %s", bb.Width, bb.Height, depthOk ? "on" : (s.depthTest ? "off (depth surface doesn't match)" : "off (osl.ini bDepthTest=0)"));
 	}
 }
 }  // namespace

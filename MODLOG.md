@@ -126,3 +126,14 @@ camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrai
 - Couldn't quit from New Vegas's pause menu: Minecraft mode's DisableKey list (mouse buttons, Enter...) also
   blocked New Vegas's menus -> keys and buttons are given back whenever a New Vegas menu is open (TakeKeys).
 - Tab opened the Pip-Boy while typing in Minecraft chat -> DisableKey 15 while a Minecraft screen is open.
+
+## Test 7 on the user's PC (0.2.2, 2026-10-08) -> 0.2.3
+- Placed blocks become invisible, and there are random invisible blocks in the world.
+- Invisible blocks: the ground ray casts (TES::PickObject, layer 6) also hit trees, wires, roofs and actors, leaving
+  barrier slabs in the air, and barriers are saved in the Minecraft world, so earlier sessions' strays stayed.
+  -> ground from New Vegas's landscape height only (constants.GROUND_FROM_TERRAIN_ONLY); every ground reset sweeps all
+  barriers within 40 blocks (y +-48) (tested: removed 11744 in the dev world). Rocks and buildings aren't solid for
+  Minecraft for now.
+- Invisible placed blocks: the HUD overlay (drawn without depth test) shows, the world layer (depth-tested) doesn't
+  -> the depth test against New Vegas's depth at Present hides it; off by default (bDepthTest=0) until the real scene
+  depth is found (probably an INTZ copy of the main scene's depth before image-space effects).

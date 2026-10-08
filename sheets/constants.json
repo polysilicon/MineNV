@@ -113,6 +113,30 @@
       "side": "mc",
       "source": "chests.id given once when a new Minecraft world starts, so there is something to build with before the first salvage",
       "verified": "design: chosen here"
+    },
+    {
+      "id": "GROUND_FROM_TERRAIN_ONLY",
+      "value": 1,
+      "type": "int",
+      "side": "nv",
+      "source": "1: the invisible ground follows New Vegas's landscape height only. Ray casts also hit trees, wires, roofs and people, which left invisible blocks in the air (user test 0.2.2)",
+      "verified": "no: in game"
+    },
+    {
+      "id": "DEPTH_TEST_DEFAULT",
+      "value": 0,
+      "type": "int",
+      "side": "nv",
+      "source": "osl.ini bDepthTest default. 0: Minecraft is drawn on top of New Vegas. Placed blocks were invisible with the depth test on (user test 0.2.2), so New Vegas's depth at Present isn't usable as assumed",
+      "verified": "no: in game"
+    },
+    {
+      "id": "BARRIER_SWEEP_RADIUS",
+      "value": 40,
+      "type": "int",
+      "side": "mc",
+      "source": "on every ground reset, Minecraft removes all barrier blocks this far around the player (y +-48): earlier sessions' stray ground",
+      "verified": "no: fake-host test"
     }
   ]
 }

@@ -509,7 +509,7 @@ __declspec(dllexport) bool NVSEPlugin_Load(NVSEInterface *nvse)
 		return false;
 	}
 	std::string ini = g_dir + "osl.ini";
-	g_settings.depthTest = GetPrivateProfileIntA("Composite", "bDepthTest", 1, ini.c_str()) != 0;
+	g_settings.depthTest = GetPrivateProfileIntA("Composite", "bDepthTest", sheets::DEPTH_TEST_DEFAULT, ini.c_str()) != 0;
 	g_settings.depthBias = float(GetPrivateProfileIntA("Composite", "iDepthBiasUnits", 2, ini.c_str()));
 	economy::Init(script, g_console, ser, g_handle, (g_dir + "osl_forms.ini").c_str());
 	g_messaging->RegisterListener(g_handle, "NVSE", OnMessage);
