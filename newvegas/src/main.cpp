@@ -112,6 +112,7 @@ void SetScreen(bool open)
 	if (g_controls)
 		open ? g_controls->DisablePlayerControlsAlt(flags, kModName) : g_controls->EnablePlayerControlsAlt(flags, kModName);
 	Script(open ? "DisableKey 1" : "EnableKey 1");  // Esc closes Minecraft's screen, not New Vegas's pause menu
+	Script(open ? "DisableKey 15" : "EnableKey 15");  // Tab completes commands in chat, not the Pip-Boy
 }
 
 void PollKeys(bool outdoors)

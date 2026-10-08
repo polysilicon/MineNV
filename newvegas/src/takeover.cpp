@@ -23,6 +23,7 @@ bool g_on = false;
 bool g_held[256] = {};
 bool g_buttons[3] = {};
 bool g_activateHeld = false, g_escHeld = false;
+bool g_keysTaken = false;  // Minecraft's keys disabled for New Vegas (given back while a New Vegas menu is open)
 Script *g_follow = nullptr, *g_activate = nullptr;
 
 // latest "me"
@@ -107,6 +108,15 @@ void KeysForNewVegas(bool disable)
 	{
 		std::snprintf(line, sizeof line, "%s %d", disable ? "DisableKey" : "EnableKey", code);
 		Run(line);
+	}
+}
+
+void TakeKeys(bool take)
+{
+	if (take != g_keysTaken)
+	{
+		g_keysTaken = take;
+		KeysForNewVegas(take);
 	}
 }
 
@@ -208,7 +218,7 @@ void Set(bool on)
 		g_haveMe = false;
 		if (g_controls)
 			g_controls->DisablePlayerControlsAlt(kControls, kModName);
-		KeysForNewVegas(true);
+		TakeKeys(true);
 		Run("tcl");  // New Vegas's gravity and collision would fight Minecraft's physics
 		game::KeepFirstPerson();
 		g_on = true;
@@ -221,7 +231,7 @@ void Set(bool on)
 		g_send("{\"t\":\"takeover\",\"on\":false}");
 		if (g_controls)
 			g_controls->EnablePlayerControlsAlt(kControls, kModName);
-		KeysForNewVegas(false);
+		TakeKeys(false);
 		Run("tcl");
 		game::HideHud(false);
 		game::HideFirstPersonBody(false);
@@ -270,9 +280,13 @@ void Tick(bool screenOpen, bool active)
 
 	if (!active)
 	{
+		// a New Vegas menu (pause, Pip-Boy, dialogue, console) or another window: New Vegas gets every key and
+		// mouse button back, so its menus can be clicked and confirmed
 		ReleaseAll();
+		TakeKeys(false);
 		return;
 	}
+	TakeKeys(true);
 
 	for (const sheets::KeyMap &k : sheets::KEYMAP)
 	{

@@ -51,7 +51,8 @@ public class OslClient implements ClientModInitializer {
 		"gamerule drowning_damage false",
 		"gamerule show_advancement_messages false",
 		"gamerule player_movement_check false",
-		"difficulty peaceful",
+		// Normal, not Peaceful: Peaceful forbids withers and some hostile mobs players summon themselves
+		"difficulty normal",
 		"time set noon",
 		"weather clear"
 	);

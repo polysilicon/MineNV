@@ -119,3 +119,10 @@ camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrai
   4. the Courier's first-person arms showed: node1stPerson (+0x694) hidden every frame.
 - Not yet confirmed: whether placed blocks are drawn in the real game (may have been only the button bug; if not,
   bDepthTest=0 in osl.ini draws Minecraft on top regardless of New Vegas's depth).
+
+## Test 6 on the user's PC (0.2.1, 2026-10-08) -> 0.2.2
+- No wither: difficulty was Peaceful, and WitherSkullBlock.checkSpawn refuses on Peaceful (checked in 26.3's
+  bytecode) -> difficulty normal (natural mob spawning stays off).
+- Couldn't quit from New Vegas's pause menu: Minecraft mode's DisableKey list (mouse buttons, Enter...) also
+  blocked New Vegas's menus -> keys and buttons are given back whenever a New Vegas menu is open (TakeKeys).
+- Tab opened the Pip-Boy while typing in Minecraft chat -> DisableKey 15 while a Minecraft screen is open.
