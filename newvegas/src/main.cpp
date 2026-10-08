@@ -258,11 +258,17 @@ void SendView(bool force)
 	if (!wnd || !GetClientRect(wnd, &rc))
 		return;
 	int w = rc.right - rc.left, h = rc.bottom - rc.top;
+	// Minecraft renders at most 1600x900 (same aspect): a smaller frame to copy every frame, and far less of New
+	// Vegas's 32-bit address space; the compositor scales it up.
+	const double scale = std::min(1.0, std::min(1600.0 / std::max(w, 1), 900.0 / std::max(h, 1)));
+	w = int(w * scale);
+	h = int(h * scale);
 	if (w <= 0 || h <= 0 || (!force && w == g_viewW && h == g_viewH))
 		return;
 	g_viewW = w;
 	g_viewH = h;
 	Send("{\"t\":\"view\",\"w\":" + std::to_string(w) + ",\"h\":" + std::to_string(h) + "}");
+	logf("view: Minecraft renders %dx%d", w, h);
 }
 
 // ---- link ----

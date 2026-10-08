@@ -79,3 +79,15 @@ be added later.
 - 0.1.3: the plugin hooks IDirect3DDevice9::Present (vtable slot 17) itself and ignores xNVSE's present message once
   hooked; nothing is drawn in menus/Pip-Boy/loading. Wine harness with NVSE=old (6.3.5, no present message): 807
   camera frames sent and 807 composited in 30 s, picture correct.
+
+## Test 4 on the user's PC (0.1.3, 2026-10-08)
+- Present hook installed, linked, 596 camera frames sent, shared memory opened, but drawn = 0: the frame copy never
+  completed. Likely: copying three full-screen layers through a fresh 32-bit view each frame is slower than Minecraft
+  rewriting its 3-slot ring, so the "slot rewritten while copying" check dropped every frame.
+- 0.1.4: Minecraft renders at most 1600x900 (scaled up when drawn, colour filtered); a rewritten slot is still shown;
+  every failure in the copy (mapping, textures, lock, device state, state block) is logged once with its reason.
+
+## Direction (user, 2026-10-08): option 3, "Minecraft played inside the New Vegas world"
+SkyCraft-style: Minecraft's physics move the player, all input goes to Minecraft (chat/commands too), Minecraft's
+HUD replaces New Vegas's, New Vegas NPCs fought with Minecraft weapons. Plan: 0.2.0 takeover (input, physics,
+camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrain.

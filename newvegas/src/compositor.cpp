@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <d3d9.h>
 #include <d3dcompiler.h>
+#include <cstdio>
 #include <cstring>
 #include <string>
 
@@ -33,6 +34,18 @@ float g_hostNear = 10.0f, g_hostFar = 300000.0f;
 float g_mcNear = 0.05f, g_mcFar = 1024.0f;
 int g_flags = 0;
 bool g_haveFrame = false;
+std::string g_lastProblem;
+
+/// Logs each new reason the frame copy fails (once per change, not every frame).
+void Problem(const std::string &why)
+{
+	if (why != g_lastProblem)
+	{
+		g_lastProblem = why;
+		if (!why.empty())
+			logf("compositor: %s", why.c_str());
+	}
+}
 long long g_draws = 0;
 
 const char *kShader = R"(
@@ -221,7 +234,10 @@ void Fetch(IDirect3DDevice9 *device)
 		return;  // being written: next frame
 	int w = At<int>(g_header, desc + 24), h = At<int>(g_header, desc + 28);
 	if (w <= 0 || h <= 0 || w > 3840 || h > 2160)
+	{
+		Problem("frame size " + std::to_string(w) + "x" + std::to_string(h) + " out of range");
 		return;
+	}
 	const int64_t stride = At<int64_t>(g_header, 16);
 	const uint64_t start = kHeader + uint64_t(stride) * slot;
 	SYSTEM_INFO si;
@@ -232,15 +248,23 @@ void Fetch(IDirect3DDevice9 *device)
 	const uint8_t *view = static_cast<const uint8_t *>(
 		MapViewOfFile(g_mapping, FILE_MAP_READ, DWORD(aligned >> 32), DWORD(aligned), lead + layer * 3));
 	if (!view)
+	{
+		Problem("mapping a " + std::to_string((lead + layer * 3) >> 20) + " MB frame failed (error " + std::to_string(GetLastError()) + ")");
 		return;
+	}
 	const uint8_t *data = view + lead;
-	if (EnsureTextures(device, w, h))
+	if (!EnsureTextures(device, w, h))
+		Problem("creating " + std::to_string(w) + "x" + std::to_string(h) + " textures failed");
+	else
 	{
 		const bool up = (At<int>(g_header, desc + 44) & kFlagBottomUp) != 0;
 		bool ok = Upload(g_color, data, w, h, up) && Upload(g_depth, data + layer, w, h, up) && Upload(g_overlay, data + 2 * layer, w, h, up);
-		// the slot must not have been rewritten while copying
-		if (ok && At<int64_t>(g_header, desc) == seq)
+		// a slot Minecraft rewrote while it was copied is still shown (at worst one torn frame)
+		if (!ok)
+			Problem("locking the textures failed");
+		else
 		{
+			Problem("");
 			g_mcNear = At<float>(g_header, desc + 32);
 			g_mcFar = At<float>(g_header, desc + 36);
 			g_flags = At<int>(g_header, desc + 44);
@@ -255,7 +279,10 @@ void Draw(IDirect3DDevice9 *device, const compositor::Settings &s)
 {
 	IDirect3DStateBlock9 *saved = nullptr;
 	if (FAILED(device->CreateStateBlock(D3DSBT_ALL, &saved)))
+	{
+		Problem("CreateStateBlock failed (a pure device?)");
 		return;
+	}
 	IDirect3DSurface9 *backBuffer = nullptr, *oldRt = nullptr;
 	device->GetRenderTarget(0, &oldRt);
 	device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer);
@@ -295,8 +322,9 @@ void Draw(IDirect3DDevice9 *device, const compositor::Settings &s)
 	device->SetRenderState(D3DRS_COLORWRITEENABLE, 0xF);
 	for (DWORD i = 0; i < 3; i++)
 	{
-		device->SetSamplerState(i, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-		device->SetSamplerState(i, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		// Minecraft may render smaller than New Vegas's picture: smooth colour, exact depth
+		device->SetSamplerState(i, D3DSAMP_MINFILTER, i == 1 ? D3DTEXF_POINT : D3DTEXF_LINEAR);
+		device->SetSamplerState(i, D3DSAMP_MAGFILTER, i == 1 ? D3DTEXF_POINT : D3DTEXF_LINEAR);
 		device->SetSamplerState(i, D3DSAMP_MIPFILTER, D3DTEXF_NONE);
 		device->SetSamplerState(i, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
 		device->SetSamplerState(i, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
@@ -367,8 +395,10 @@ void Present(IDirect3DDevice9 *device, bool show, const Settings &settings)
 		if (!CompileShaders(device))
 			return;
 	}
-	if (device->TestCooperativeLevel() != D3D_OK)
+	HRESULT coop = device->TestCooperativeLevel();
+	if (coop != D3D_OK)
 	{
+		Problem("device not ready (TestCooperativeLevel 0x" + [&] { char b[16]; std::snprintf(b, sizeof b, "%08lX", coop); return std::string(b); }() + ")");
 		ReleaseTextures();  // lost: D3DPOOL_DEFAULT textures must go before the game resets the device
 		g_haveFrame = false;
 		return;
