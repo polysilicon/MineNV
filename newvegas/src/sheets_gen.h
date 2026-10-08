@@ -37,6 +37,11 @@ constexpr uint32_t ADDR_FORM_REFID = 0x0C;  // TESForm::refID offset
 constexpr uint32_t ADDR_RENDERER_WINDOW = 0x3BC;  // NiDX9Renderer::deviceWindow offset
 constexpr uint32_t ADDR_RAY_FILTER_CHAIN = 0x68;  // player +0x68 -> +0x138 -> +0x594 -> +8 -> +0x2C: the player's collision filter (rays ignore the Courier)
 constexpr uint32_t ADDR_MOUSE_WHEEL = 0x1B2C;  // OSInputGlobals::currMouseWheelScroll offset
+constexpr uint32_t ADDR_HUD_MENU = 0x11D96C0;  // HUDMainMenu** (Menu::tile at +0x04, Tile::node at +0x2C)
+constexpr uint32_t ADDR_NIAV_FLAGS = 0x30;  // NiAVObject::m_flags offset (bit 0 = hidden)
+constexpr uint32_t ADDR_PLAYER_NODE_1ST = 0x694;  // PlayerCharacter::node1stPerson offset
+constexpr uint32_t ADDR_PLAYER_THIRD_PERSON = 0x64A;  // PlayerCharacter::is3rdPerson offset
+constexpr uint32_t ADDR_TOGGLE_FIRST_PERSON = 0x950110;  // PlayerCharacter::ToggleFirstPerson(bool toggleON) thiscall
 
 // keys.json
 struct Key { int code; const char* name; bool buildOnly; const char* action; };

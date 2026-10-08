@@ -324,7 +324,7 @@
       "target": "SetUIFloat \"HUDMainMenu/visible\" 0|1",
       "value": "xNVSE command",
       "use": "Minecraft mode hides New Vegas's HUD (re-applied every second; menus reset it)",
-      "verified": "no: in game (xNVSE GetSetUIValue + kTileValue_visible exist)"
+      "verified": "failed in game (0.2.0): the HUD stayed; replaced by hud_node_hide"
     },
     {
       "id": "courier_follow",
@@ -379,6 +379,51 @@
       "value": "InputConstantsMixin",
       "use": "shift-click, sprint and sneak see the forwarded keys; no grabbing a hidden window's mouse",
       "verified": "code: SkyCraft InputConstantsMixin; test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "hud_menu",
+      "side": "nv",
+      "kind": "address",
+      "target": "HUDMainMenu** (Menu::tile at +0x04, Tile::node at +0x2C)",
+      "value": "0x11D96C0",
+      "use": "Minecraft mode hides New Vegas's HUD by its scene node",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameUI.h HUDMainMenu::Get, Menu tile // 04, nvse/GameTiles.h Tile node // 2C"
+    },
+    {
+      "id": "niav_flags",
+      "side": "nv",
+      "kind": "address",
+      "target": "NiAVObject::m_flags offset (bit 0 = hidden)",
+      "value": "0x30",
+      "use": "hide the HUD node and the Courier's first-person body",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) internal/netimmerse.h m_flags // 30, kNiFlag_Hidden = 1"
+    },
+    {
+      "id": "player_node_1st",
+      "side": "nv",
+      "kind": "address",
+      "target": "PlayerCharacter::node1stPerson offset",
+      "value": "0x694",
+      "use": "Minecraft mode hides the Courier's first-person arms and gun (Steve's hand shows instead)",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h node1stPerson // 694"
+    },
+    {
+      "id": "player_third_person",
+      "side": "nv",
+      "kind": "address",
+      "target": "PlayerCharacter::is3rdPerson offset",
+      "value": "0x64A",
+      "use": "the wheel or idle camera must not put New Vegas in third person during Minecraft mode",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h is3rdPerson // 64A"
+    },
+    {
+      "id": "toggle_first_person",
+      "side": "nv",
+      "kind": "address",
+      "target": "PlayerCharacter::ToggleFirstPerson(bool toggleON) thiscall",
+      "value": "0x950110",
+      "use": "back to first person when New Vegas switched to third",
+      "verified": "code: JIP LN NVSE source (jazzisparis/JIP-LN-NVSE) nvse/GameObjects.h ToggleFirstPerson (ThisCall 0x950110), jip_fn_miscellaneous.h Cmd_ToggleFirstPerson"
     }
   ]
 }

@@ -48,7 +48,18 @@ public final class InputBridge {
 		minecraft.mouseHandler.onMove(minecraft.getWindow().handle(), cursorX, cursorY, dx, dy);
 	}
 
-	static void button(final Minecraft minecraft, final int button, final boolean down) {
+	/** Link button 0 left, 1 right, 2 middle -> Minecraft 26.3's SDL numbering (InputConstants: left 1, middle 2, right 3). */
+	static int sdlButton(final int linkButton) {
+		return switch (linkButton) {
+			case 0 -> 1;
+			case 1 -> 3;
+			case 2 -> 2;
+			default -> -1;
+		};
+	}
+
+	static void button(final Minecraft minecraft, final int linkButton, final boolean down) {
+		int button = sdlButton(linkButton);
 		if (button < 0 || button >= BUTTONS.length || BUTTONS[button] == down) {
 			return;
 		}
@@ -94,7 +105,8 @@ public final class InputBridge {
 
 		for (int b = 0; b < BUTTONS.length; b++) {
 			if (BUTTONS[b]) {
-				button(minecraft, b, false);
+				BUTTONS[b] = false;
+				minecraft.mouseHandler.onButton(minecraft.getWindow().handle(), new MouseButtonInfo(b, modifiers), 0);
 			}
 		}
 	}

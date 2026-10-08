@@ -104,3 +104,18 @@ camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrai
 - Harness: walking (W) moved Steve ~16 blocks and the Courier followed; T + typed "/say hello from the Mojave" ran;
   found and fixed: New Vegas-owned keys swallowed letters while typing, two keymap rows on one Windows key typed
   "//", and command feedback was off. Not yet in the real game: mouse look, HUD hiding, tcl, SetPos smoothness.
+
+## Test 5 on the user's PC (0.2.0, 2026-10-08)
+- Works: Minecraft's HUD shows, commands work.
+- Broken, fixed in 0.2.1:
+  1. mouse buttons: Minecraft 26.3 numbers them like SDL (InputConstants MOUSE_BUTTON_LEFT 1, MIDDLE 2, RIGHT 3);
+     the link sent 0/1/2, so right click was Minecraft's left (dragging in the inventory, swinging instead of
+     placing) and left click did nothing. Mapped in InputBridge.sdlButton; tested: right click placed a plank at
+     0,64,1, holding left broke it.
+  2. scroll wheel put New Vegas in third person (DisableKey 264/265 didn't stop it): every frame in Minecraft mode,
+     ToggleFirstPerson(0x950110) when is3rdPerson (+0x64A).
+  3. New Vegas's HUD still showed (SetUIFloat HUDMainMenu/visible had no effect): its scene node is hidden every
+     frame (HUDMainMenu 0x11D96C0 -> tile +0x04 -> node +0x2C, NiAVObject flags +0x30 bit 0).
+  4. the Courier's first-person arms showed: node1stPerson (+0x694) hidden every frame.
+- Not yet confirmed: whether placed blocks are drawn in the real game (may have been only the button bug; if not,
+  bDepthTest=0 in osl.ini draws Minecraft on top regardless of New Vegas's depth).

@@ -42,7 +42,7 @@ public final class ScreenCursor {
 	private static void button(final Minecraft minecraft, final long window, final int b, final boolean pressed) {
 		if (down[b] != pressed) {
 			down[b] = pressed;
-			minecraft.mouseHandler.onButton(window, new MouseButtonInfo(b, 0), pressed ? 1 : 0);
+			minecraft.mouseHandler.onButton(window, new MouseButtonInfo(InputBridge.sdlButton(b), 0), pressed ? 1 : 0);
 		}
 	}
 

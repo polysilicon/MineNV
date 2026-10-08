@@ -23,7 +23,6 @@ bool g_on = false;
 bool g_held[256] = {};
 bool g_buttons[3] = {};
 bool g_activateHeld = false, g_escHeld = false;
-DWORD g_lastHud = 0;
 Script *g_follow = nullptr, *g_activate = nullptr;
 
 // latest "me"
@@ -211,7 +210,7 @@ void Set(bool on)
 			g_controls->DisablePlayerControlsAlt(kControls, kModName);
 		KeysForNewVegas(true);
 		Run("tcl");  // New Vegas's gravity and collision would fight Minecraft's physics
-		Run("SetUIFloat \"HUDMainMenu/visible\" 0");
+		game::KeepFirstPerson();
 		g_on = true;
 		logf("takeover: Minecraft mode on");
 		Say("Minecraft mode: you play as Steve. E inventory, T chat, / commands, R uses New Vegas doors and people, Tab Pip-Boy, B back to New Vegas controls.");
@@ -224,7 +223,8 @@ void Set(bool on)
 			g_controls->EnablePlayerControlsAlt(kControls, kModName);
 		KeysForNewVegas(false);
 		Run("tcl");
-		Run("SetUIFloat \"HUDMainMenu/visible\" 1");
+		game::HideHud(false);
+		game::HideFirstPersonBody(false);
 		g_on = false;
 		logf("takeover: Minecraft mode off");
 		game::Message("New Vegas controls. B for Minecraft mode.");
@@ -254,12 +254,10 @@ void Tick(bool screenOpen, bool active)
 {
 	if (!g_on)
 		return;
-	DWORD now = GetTickCount();
-	if (now - g_lastHud > 1000)
-	{
-		g_lastHud = now;
-		Run("SetUIFloat \"HUDMainMenu/visible\" 0");  // menus put it back
-	}
+	// every frame: New Vegas puts these back (menus, the wheel, the idle camera)
+	game::HideHud(true);
+	game::HideFirstPersonBody(true);
+	game::KeepFirstPerson();
 
 	// the Courier stands where Steve stands and looks where he looks
 	if (g_haveMe && g_follow)

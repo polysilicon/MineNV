@@ -187,3 +187,38 @@ int MouseWheel()
 	return input ? Read<int>(input + sheets::ADDR_MOUSE_WHEEL) : 0;
 }
 }  // namespace game
+
+namespace
+{
+void SetHidden(uintptr_t node, bool hide)
+{
+	if (!node)
+		return;
+	uint32_t &flags = *reinterpret_cast<uint32_t *>(node + sheets::ADDR_NIAV_FLAGS);
+	flags = hide ? (flags | 1u) : (flags & ~1u);
+}
+using ToggleFirstPerson_t = bool(__thiscall *)(void *player, bool toggleOn);
+}  // namespace
+
+namespace game
+{
+void HideHud(bool hide)
+{
+	uintptr_t hud = Ptr(sheets::ADDR_HUD_MENU);
+	uintptr_t tile = hud ? Ptr(hud + 0x04) : 0;
+	SetHidden(tile ? Ptr(tile + 0x2C) : 0, hide);
+}
+
+void HideFirstPersonBody(bool hide)
+{
+	uintptr_t p = reinterpret_cast<uintptr_t>(Player());
+	SetHidden(p ? Ptr(p + sheets::ADDR_PLAYER_NODE_1ST) : 0, hide);
+}
+
+void KeepFirstPerson()
+{
+	uintptr_t p = reinterpret_cast<uintptr_t>(Player());
+	if (p && Read<uint8_t>(p + sheets::ADDR_PLAYER_THIRD_PERSON))
+		reinterpret_cast<ToggleFirstPerson_t>(sheets::ADDR_TOGGLE_FIRST_PERSON)(reinterpret_cast<void *>(p), true);
+}
+}  // namespace game

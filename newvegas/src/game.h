@@ -37,4 +37,9 @@ void *GameWindow();
 void MouseDelta(int &dx, int &dy);
 /// Mouse wheel movement this frame (DirectInput units, 120 per notch).
 int MouseWheel();
+/// Minecraft mode: hide (or show again) New Vegas's HUD and the Courier's first-person arms and gun.
+void HideHud(bool hide);
+void HideFirstPersonBody(bool hide);
+/// Back to first person if New Vegas switched to third (mouse wheel, idle camera).
+void KeepFirstPerson();
 }  // namespace game
