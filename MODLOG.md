@@ -47,3 +47,11 @@ be added later.
 - Maven Central rate-limits this container (429): `~/.gradle/init.d/mirror.gradle` puts Google's Maven Central
   mirror first (local only, not in the repo).
 - github.com web/API is blocked here (403); anonymous git clones of public repos work.
+
+## Test 1 on the user's PC (0.1.0, 2026-10-06)
+- New Vegas plugin loaded (B showed the build-mode message), but "Minecraft is linked." never appeared: Minecraft
+  was not listening. Most likely cause: on the first Play, Prism's sign-in window opened behind New Vegas, so
+  Minecraft never started. No logs received yet.
+- 0.1.1: the launcher starts Prism and waits for Minecraft's link before starting New Vegas (15 min before the first
+  sign-in, else 3); Minecraft logs "OSL ready" once its world is open and Melty's setup waits for that line; the
+  plugin says on screen when Minecraft isn't connected or drawing fails; README.txt in both zips.

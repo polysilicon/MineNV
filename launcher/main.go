@@ -51,6 +51,7 @@ func main() {
 	}
 	if *mc != "" {
 		startMinecraft(*mc)
+		waitForMinecraft(*mc)
 	}
 	loader := filepath.Join(*fnv, "nvse_loader.exe")
 	cmd := exec.Command(loader)
@@ -112,6 +113,25 @@ func linkUp() bool {
 	}
 	c.Close()
 	return true
+}
+
+// waitForMinecraft holds New Vegas back until Minecraft's link is up, so Prism's sign-in window (first Play) is
+// never hidden behind the game. Up to 15 minutes before the account is set up (sign-in + ~1 GB download), else 3.
+func waitForMinecraft(mcHome string) {
+	limit := 3 * time.Minute
+	if _, err := os.Stat(filepath.Join(mcHome, "Prism", "accounts.json")); err != nil {
+		limit = 15 * time.Minute
+		log.Print("minecraft: no Prism account yet: waiting for the sign-in and the first download")
+	}
+	start := time.Now()
+	for time.Since(start) < limit {
+		if linkUp() {
+			log.Printf("minecraft: link up after %s", time.Since(start).Round(time.Second))
+			return
+		}
+		time.Sleep(time.Second)
+	}
+	log.Printf("minecraft: link still down after %s; starting New Vegas anyway (it links when Minecraft is ready)", limit)
 }
 
 // startMinecraft starts the bundled Prism instance unless Minecraft's link is already listening.

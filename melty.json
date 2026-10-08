@@ -26,7 +26,7 @@
   "setup": {
     "label": "Minecraft",
     "launch": {"kind": "exe", "path": "{localappdata}/OverworldSupplyLine/Prism/prismlauncher.exe", "args": ["--launch", "OverworldSupplyLine"]},
-    "done": {"file": "{localappdata}/OverworldSupplyLine/Prism/instances/OverworldSupplyLine/.minecraft/logs/latest.log", "contains": "OSL link listening"}
+    "done": {"file": "{localappdata}/OverworldSupplyLine/Prism/instances/OverworldSupplyLine/.minecraft/logs/latest.log", "contains": "OSL ready"}
   },
   "runtimeData": ["{localappdata}/OverworldSupplyLine/Prism/instances/OverworldSupplyLine/.minecraft"],
   "notes": {

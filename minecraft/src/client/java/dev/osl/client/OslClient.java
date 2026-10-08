@@ -86,6 +86,8 @@ public class OslClient implements ClientModInitializer {
 			player.getAbilities().flying = true;
 			player.onUpdateAbilities();
 			setupIn = 10;
+			// fixed words: Melty's first-run setup and the launcher wait for this line in latest.log
+			Osl.LOG.info("OSL ready: world {} open", WORLD);
 		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			if (setupIn > 0 && --setupIn == 0) {

@@ -80,6 +80,16 @@ def write_zip(path, entries):
             z.writestr(info, src if isinstance(src, bytes) else open(src, "rb").read())
 
 
+README_TXT = b"""Mojavecraft (Fallout: New Vegas x Minecraft: Java Edition)
+Install and play from Melty: https://melty.gg/m/mojavecraft  -  source: https://github.com/polysilicon/MineNV
+
+First Play: Prism Launcher opens - sign in with the Microsoft account that owns Minecraft: Java Edition.
+It downloads Minecraft once (about 1 GB); New Vegas starts when Minecraft is ready.
+In game: "Minecraft is linked." appears top left. B = build mode (left click breaks, right click places,
+1-9 pick a block, I = Minecraft inventory). J = salvage junk into Minecraft items. Outdoors only.
+Logs: Data/NVSE/Plugins/osl.log, osl-launch.log (here), and Prism's instance logs/latest.log.
+"""
+
 OSL_INI = b"""; Overworld Supply Line: settings for the New Vegas plugin (Melty replaces this file on updates).
 [Composite]
 ; 1: New Vegas objects in front hide Minecraft blocks. 0: Minecraft is always drawn on top.
@@ -151,6 +161,7 @@ def main():
         "Data/NVSE/Plugins/osl.ini": OSL_INI,
         "OSL/osl-launch.exe": exe,
         "OSL/THIRD-PARTY-NOTICES.md": notices,
+        "OSL/README.txt": README_TXT,
     })
 
     prism = fetch(PRISM_URL, PRISM_ZIP, "sha256", PRISM_SHA256)
@@ -176,6 +187,7 @@ def main():
         # fixed names: an update replaces the jars instead of leaving two versions side by side
         inst + ".minecraft/mods/overworld-supply-line.jar": jar,
         inst + ".minecraft/mods/fabric-api.jar": fabric_api,
+        "README.txt": README_TXT,
         "THIRD-PARTY-NOTICES.md": notices + (
             "\n## Prism Launcher (GPL-3.0)\nBundled unmodified: Prism Launcher " + PRISM_VERSION + ", "
             "https://prismlauncher.org/. Source: https://github.com/PrismLauncher/PrismLauncher/tree/" + PRISM_VERSION + "\n"

@@ -38,6 +38,8 @@ long long g_frame = 0;
 int g_viewW = 0, g_viewH = 0;
 bool g_keyDown[512] = {};
 DWORD g_lastQuestPoll = 0, g_lastTick = 0;
+DWORD g_firstLoop = 0, g_lastLinkHint = 0;
+bool g_compositorWarned = false;
 
 // ground columns already sent, keyed by block x/z
 std::unordered_set<long long> g_probed;
@@ -123,7 +125,9 @@ void PollKeys(bool outdoors)
 		{
 			if (down && !g_screenOpen)
 			{
-				if (outdoors || g_build)
+				if (!g_link.connected() && !g_build)
+					game::Message("Minecraft isn't connected yet, so build mode can't start. It may still be starting: if a Prism Launcher window is open, Alt-Tab to it and sign in.");
+				else if (outdoors || g_build)
 					SetBuild(!g_build);
 				else
 					game::Message("Minecraft blocks can only be built outdoors.");
@@ -294,6 +298,21 @@ void MainLoop()
 	if (!game::Player())
 		return;
 	HandleLink();
+	DWORD nowTick = GetTickCount();
+	if (!g_firstLoop)
+		g_firstLoop = nowTick;
+	if (!g_link.connected() && nowTick - g_firstLoop > 15000 && (!g_lastLinkHint || nowTick - g_lastLinkHint > 120000) && !game::MenuMode())
+	{
+		g_lastLinkHint = nowTick;
+		game::Message("Mojavecraft: Minecraft isn't running. If a Prism Launcher window is open, sign in there; otherwise restart from Melty.");
+		logf("link: Minecraft not reachable on 127.0.0.1:%d", sheets::LINK_PORT);
+	}
+	if (!g_compositorWarned && compositor::Status()[0])
+	{
+		g_compositorWarned = true;
+		std::string m = std::string("Mojavecraft can't draw Minecraft: ") + compositor::Status();
+		game::Message(m.c_str());
+	}
 	UInt32 ws = game::ExteriorWorldspace();
 	bool outdoors = ws != 0;
 	if (ws != g_worldspace)
