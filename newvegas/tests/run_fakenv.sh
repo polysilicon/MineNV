@@ -15,5 +15,5 @@ lld-link /nologo /machine:x86 /subsystem:console /base:0x400000 /fixed /largeadd
 cp build/fakenv.exe build/OverworldSupplyLine.dll "$OUT/"
 printf 'MISC|Scrap Metal=00031944\nMISC|Tin Can=00012345\n' > "$OUT/osl_forms.ini"
 cd "$OUT"
-WINEDEBUG=-all wine fakenv.exe "Z:$OUT/OverworldSupplyLine.dll" 'Z:\dev\shm\OSLFrame' "Z:$OUT" "${FRAMES:-420}"
+WINEDEBUG=-all wine fakenv.exe "Z:$OUT/OverworldSupplyLine.dll" 'Z:\dev\shm\OSLFrame' "Z:$OUT" "${FRAMES:-420}" "${NVSE:-new}"
 echo "frames and osl.log in $OUT"

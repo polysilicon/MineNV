@@ -71,3 +71,11 @@ be added later.
   4. salvage message shown twice -> only Minecraft's confirmation;
   5. Minecraft's music muted (block sounds kept).
 - Link failures are now logged with their reason; osl.log gets a status line every 30 s.
+
+## Test 3 on the user's PC (0.1.2, 2026-10-08): osl.log received
+- Linked within 8 s, 20 forms resolved, worldspace 000DA726, build mode toggled, BUT camera frames sent = 0 and
+  drawn = 0: the user's xNVSE is 6.3.5 (06030050) and it never sent kMessage_OnFramePresent, which the plugin relied
+  on for the camera and the composite.
+- 0.1.3: the plugin hooks IDirect3DDevice9::Present (vtable slot 17) itself and ignores xNVSE's present message once
+  hooked; nothing is drawn in menus/Pip-Boy/loading. Wine harness with NVSE=old (6.3.5, no present message): 807
+  camera frames sent and 807 composited in 30 s, picture correct.

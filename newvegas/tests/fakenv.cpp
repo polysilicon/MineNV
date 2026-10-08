@@ -268,6 +268,8 @@ int main(int argc, char **argv)
 	LOG("image reserve %p..%p, player buffer %p", (void *)g_reserve, (void *)(g_reserve + sizeof g_reserve), (void *)g_player);
 	std::string outDir = argv[3];
 	int frames = argc > 4 ? std::atoi(argv[4]) : 600;
+	// "old": behave like xNVSE 6.3.x, which never sends kMessage_OnFramePresent
+	const bool oldNvse = argc > 5 && std::string(argv[5]) == "old";
 	const int W = 1280, H = 720;
 
 	// game memory
@@ -302,7 +304,7 @@ int main(int argc, char **argv)
 	pp.BackBufferWidth = W;
 	pp.BackBufferHeight = H;
 	pp.BackBufferFormat = D3DFMT_X8R8G8B8;
-	pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	pp.SwapEffect = D3DSWAPEFFECT_COPY;  // the back buffer keeps what was shown, for the screenshots
 	pp.Windowed = TRUE;
 	pp.EnableAutoDepthStencil = TRUE;
 	pp.AutoDepthStencilFormat = D3DFMT_D24S8;
@@ -370,7 +372,7 @@ int main(int argc, char **argv)
 		LOG("FAIL plugin %s: exports missing (error %lu)", argv[1], GetLastError());
 		return 2;
 	}
-	NVSEInterface nvse = {0x06040090, RUNTIME_VERSION_1_4_0_525, 0, 0, nullptr, nullptr, FakeQuery, FakeHandle};
+	NVSEInterface nvse = {oldNvse ? 0x06030050u : 0x06040090u, RUNTIME_VERSION_1_4_0_525, 0, 0, nullptr, nullptr, FakeQuery, FakeHandle};
 	PluginInfo info = {};
 	LOG("query: %d (%s)", query(&nvse, &info), info.name);
 	LOG("load: %d", load(&nvse));
@@ -399,10 +401,11 @@ int main(int argc, char **argv)
 		send(NVSEMessagingInterface::kMessage_MainGameLoop);
 		DrawScene(dev, W, H);
 		int loading = 0;
-		send(NVSEMessagingInterface::kMessage_OnFramePresent, &loading, sizeof loading);
+		if (!oldNvse)
+			send(NVSEMessagingInterface::kMessage_OnFramePresent, &loading, sizeof loading);
+		dev->Present(nullptr, nullptr, nullptr, nullptr);  // the plugin may composite inside Present (its hook)
 		if (i == 120 || i == 240 || i == frames - 1)
 			SaveBmp(dev, outDir + "\\fakenv_" + std::to_string(i) + ".bmp");
-		dev->Present(nullptr, nullptr, nullptr, nullptr);
 		Sleep(16);
 	}
 	send(NVSEMessagingInterface::kMessage_ExitGame);

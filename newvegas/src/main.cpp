@@ -365,7 +365,8 @@ void MainLoop()
 
 void FramePresent(bool loadingScreen)
 {
-	bool show = !loadingScreen && g_worldspace != 0 && g_link.connected() && game::Player();
+	// not over menus, the Pip-Boy or loading screens: only the open world gets Minecraft
+	bool show = !loadingScreen && g_worldspace != 0 && g_link.connected() && game::Player() && !game::MenuMode();
 	if (show)
 	{
 		SendView(false);
@@ -374,15 +375,58 @@ void FramePresent(bool loadingScreen)
 	compositor::Present(game::Device(), show, g_settings);
 }
 
+// ---- Present hook ----
+// xNVSE only sends kMessage_OnFramePresent from 6.4 on (players have 6.3.x too), so the plugin hooks the game's
+// IDirect3DDevice9::Present itself (vtable slot 17): the camera goes to Minecraft and Minecraft's frame is drawn right
+// before New Vegas's picture is shown.
+using Present_t = HRESULT(__stdcall *)(IDirect3DDevice9 *, const RECT *, const RECT *, HWND, const RGNDATA *);
+Present_t g_origPresent = nullptr;
+IDirect3DDevice9 *g_hookedDevice = nullptr;
+bool g_inPresent = false;
+
+HRESULT __stdcall PresentHook(IDirect3DDevice9 *device, const RECT *src, const RECT *dst, HWND wnd, const RGNDATA *dirty)
+{
+	if (!g_inPresent && device == game::Device())
+	{
+		g_inPresent = true;
+		FramePresent(false);
+		g_inPresent = false;
+	}
+	return g_origPresent(device, src, dst, wnd, dirty);
+}
+
+void HookPresent()
+{
+	IDirect3DDevice9 *device = game::Device();
+	if (!device || device == g_hookedDevice)
+		return;
+	void **vtable = *reinterpret_cast<void ***>(device);
+	if (vtable[17] == reinterpret_cast<void *>(&PresentHook))
+		return;
+	DWORD old;
+	if (!VirtualProtect(&vtable[17], sizeof(void *), PAGE_EXECUTE_READWRITE, &old))
+	{
+		logf("present hook: VirtualProtect failed (%lu)", GetLastError());
+		return;
+	}
+	g_origPresent = reinterpret_cast<Present_t>(vtable[17]);
+	vtable[17] = reinterpret_cast<void *>(&PresentHook);
+	VirtualProtect(&vtable[17], sizeof(void *), old, &old);
+	g_hookedDevice = device;
+	logf("present hook: installed on device %p", static_cast<void *>(device));
+}
+
 void OnMessage(NVSEMessagingInterface::Message *m)
 {
 	switch (m->type)
 	{
 	case NVSEMessagingInterface::kMessage_MainGameLoop:
+		HookPresent();
 		MainLoop();
 		break;
 	case NVSEMessagingInterface::kMessage_OnFramePresent:
-		FramePresent(m->data && *static_cast<int *>(m->data) != 0);
+		if (!g_hookedDevice)
+			FramePresent(m->data && *static_cast<int *>(m->data) != 0);
 		break;
 	case NVSEMessagingInterface::kMessage_PostLoadGame:
 	case NVSEMessagingInterface::kMessage_NewGame:
@@ -425,7 +469,8 @@ __declspec(dllexport) bool NVSEPlugin_Load(NVSEInterface *nvse)
 {
 	g_dir = PluginDir();
 	logOpen((g_dir + "osl.log").c_str());
-	logf("Overworld Supply Line plugin loading (xNVSE %08X)", nvse->nvseVersion);
+	logf("Overworld Supply Line plugin loading (xNVSE %u.%u.%u)", nvse->nvseVersion >> 24, (nvse->nvseVersion >> 16) & 0xFF,
+		(nvse->nvseVersion >> 4) & 0xFFF);
 	g_handle = nvse->GetPluginHandle();
 	g_messaging = static_cast<NVSEMessagingInterface *>(nvse->QueryInterface(kInterface_Messaging));
 	g_console = static_cast<NVSEConsoleInterface *>(nvse->QueryInterface(kInterface_Console));
