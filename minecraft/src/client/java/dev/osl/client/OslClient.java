@@ -58,6 +58,8 @@ public class OslClient implements ClientModInitializer {
 	/** Started by the launcher behind New Vegas: no window, and quit once New Vegas has gone. */
 	public static final boolean START_HIDDEN = Boolean.getBoolean("osl.startHidden");
 	private static final long QUIT_AFTER_NANOS = 30_000_000_000L;
+	/** Never linked at all (New Vegas didn't start, or crashed early): don't linger hidden in the background. */
+	private static final long QUIT_UNLINKED_NANOS = 600_000_000_000L;
 	private static boolean hidden;
 	private static boolean configured;
 	private static boolean worldRequested;
@@ -108,8 +110,9 @@ public class OslClient implements ClientModInitializer {
 			Osl.LOG.info("window hidden: New Vegas shows Minecraft's picture");
 		}
 
-		if (START_HIDDEN && HostLink.everConnected() && !linked() && System.nanoTime() - HostLink.lastSeenNanos() > QUIT_AFTER_NANOS) {
-			Osl.LOG.info("New Vegas has gone: quitting");
+		long unlinkedFor = System.nanoTime() - HostLink.lastSeenNanos();
+		if (START_HIDDEN && !linked() && unlinkedFor > (HostLink.everConnected() ? QUIT_AFTER_NANOS : QUIT_UNLINKED_NANOS)) {
+			Osl.LOG.info(HostLink.everConnected() ? "New Vegas has gone: quitting" : "New Vegas never connected in 10 minutes: quitting");
 			minecraft.stop();
 			return;
 		}

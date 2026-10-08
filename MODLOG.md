@@ -55,3 +55,5 @@ be added later.
 - 0.1.1: the launcher starts Prism and waits for Minecraft's link before starting New Vegas (15 min before the first
   sign-in, else 3); Minecraft logs "OSL ready" once its world is open and Melty's setup waits for that line; the
   plugin says on screen when Minecraft isn't connected or drawing fails; README.txt in both zips.
+- Melty install reports (0.1.0 went live: 250 installs): 8 uninstalls stuck on Prism\archive.dll (EPERM) = Prism/
+  Minecraft still running in the background. 0.1.1 also quits hidden Minecraft when New Vegas never links in 10 min.
