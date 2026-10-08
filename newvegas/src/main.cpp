@@ -16,6 +16,7 @@
 #include "nvse_api.h"
 #include "pose.h"
 #include "sheets_gen.h"
+#include "takeover.h"
 #include "ws.h"
 
 namespace
@@ -41,6 +42,7 @@ DWORD g_lastQuestPoll = 0, g_lastTick = 0;
 DWORD g_firstLoop = 0, g_lastLinkHint = 0;
 bool g_compositorWarned = false;
 bool g_linkAnnounced = false;
+bool g_wantTakeover = true;  // Minecraft mode starts by itself; B switches back to New Vegas controls
 std::string g_lastLinkError;
 
 // ground columns already sent, keyed by block x/z
@@ -127,12 +129,16 @@ void PollKeys(bool outdoors)
 		{
 			if (down && !g_screenOpen)
 			{
-				if (!g_link.connected() && !g_build)
-					game::Message("Minecraft isn't connected yet, so build mode can't start. It may still be starting: if a Prism Launcher window is open, Alt-Tab to it and sign in.");
-				else if (outdoors || g_build)
-					SetBuild(!g_build);
+				if (!g_link.connected())
+					game::Message("Minecraft isn't connected yet. It may still be starting: if a Prism Launcher window is open, Alt-Tab to it and sign in.");
+				else if (!outdoors)
+					game::Message("Minecraft mode works outdoors only.");
 				else
-					game::Message("Minecraft blocks can only be built outdoors.");
+				{
+					// Minecraft mode <-> New Vegas controls
+					g_wantTakeover = !takeover::On();
+					takeover::Set(g_wantTakeover);
+				}
 			}
 		}
 		else if (a == "salvage")
@@ -149,6 +155,8 @@ void PollKeys(bool outdoors)
 				}
 			}
 		}
+		else if (takeover::On())
+			continue;  // Minecraft mode forwards every key itself
 		else if (!k.buildOnly || g_build)
 		{
 			if (a.rfind("key:", 0) == 0)
@@ -165,7 +173,7 @@ void PollKeys(bool outdoors)
 		}
 	}
 
-	if (g_screenOpen)
+	if (g_screenOpen && !takeover::On())
 	{
 		bool esc = active && Pressed(1);
 		if (esc && !g_keyDown[1])
@@ -247,7 +255,7 @@ void SendCamera()
 	std::snprintf(m, sizeof m,
 		"{\"t\":\"cam\",\"f\":%lld,\"p\":[%.4f,%.4f,%.4f],\"r\":[%.3f,%.3f,0],\"fov\":%.3f,\"fp\":true,"
 		"\"pl\":[%.4f,%.4f,%.4f],\"h\":%.3f,\"ws\":%u,\"build\":%s}",
-		++g_frame, mc.x, mc.y, mc.z, mc.yaw, mc.pitch, mc.fov, px, py, pz, mc.yaw, g_worldspace, g_build ? "true" : "false");
+		++g_frame, mc.x, mc.y, mc.z, mc.yaw, mc.pitch, mc.fov, px, py, pz, mc.yaw, g_worldspace, g_build || takeover::On() ? "true" : "false");
 	Send(m);
 }
 
@@ -303,7 +311,9 @@ void HandleLink()
 	while (g_link.poll(m))
 	{
 		std::string t = msg::Str(m, "t");
-		if (t == "perks")
+		if (t == "me")
+			takeover::OnMe(m);
+		else if (t == "perks")
 			economy::OnPerks(msg::StrList(m, "on"));
 		else if (t == "toast")
 			game::Message(msg::Str(m, "text").c_str());
@@ -331,8 +341,7 @@ void MainLoop()
 	if (!g_compositorWarned && compositor::Status()[0])
 	{
 		g_compositorWarned = true;
-		std::string m = std::string("Mojavecraft can't draw Minecraft: ") + compositor::Status();
-		game::Message(m.c_str());
+		takeover::Say(std::string("Mojavecraft can't draw Minecraft: ") + compositor::Status());
 	}
 	UInt32 ws = game::ExteriorWorldspace();
 	bool outdoors = ws != 0;
@@ -344,6 +353,11 @@ void MainLoop()
 		ResetGround();
 	}
 	PollKeys(outdoors);
+	if (takeover::On() && (!outdoors || !g_link.connected()))
+		takeover::Set(false);  // indoors, or Minecraft went away: New Vegas takes the Courier back
+	else if (!takeover::On() && g_wantTakeover && outdoors && g_link.connected() && g_linkAnnounced && !game::MenuMode())
+		takeover::Set(true);
+	takeover::Tick(g_screenOpen, Foreground() && !game::MenuMode());
 	static DWORD lastStatus = 0;
 	if (nowTick - lastStatus > 30000)
 	{
@@ -434,6 +448,11 @@ void OnMessage(NVSEMessagingInterface::Message *m)
 		if (!g_hookedDevice)
 			FramePresent(m->data && *static_cast<int *>(m->data) != 0);
 		break;
+	case NVSEMessagingInterface::kMessage_PreLoadGame:
+	case NVSEMessagingInterface::kMessage_ExitToMainMenu:
+		takeover::Set(false);
+		g_wantTakeover = true;
+		break;
 	case NVSEMessagingInterface::kMessage_PostLoadGame:
 	case NVSEMessagingInterface::kMessage_NewGame:
 		g_build = false;
@@ -493,6 +512,7 @@ __declspec(dllexport) bool NVSEPlugin_Load(NVSEInterface *nvse)
 	g_settings.depthBias = float(GetPrivateProfileIntA("Composite", "iDepthBiasUnits", 2, ini.c_str()));
 	economy::Init(script, g_console, ser, g_handle, (g_dir + "osl_forms.ini").c_str());
 	g_messaging->RegisterListener(g_handle, "NVSE", OnMessage);
+	takeover::Init(script, g_console, g_controls, [](const std::string &m) { Send(m); });
 	g_link.start("127.0.0.1", sheets::LINK_PORT);
 	logf("loaded; linking to Minecraft on 127.0.0.1:%d", sheets::LINK_PORT);
 	return true;

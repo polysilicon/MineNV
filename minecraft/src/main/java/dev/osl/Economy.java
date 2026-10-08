@@ -147,10 +147,23 @@ public final class Economy {
 	}
 
 	static void toast(final String text) {
+		MinecraftServer s = server;
+		if (s != null && Osl.takeover) {
+			s.execute(() -> s.getPlayerList().getPlayers().forEach(p -> p.sendSystemMessage(net.minecraft.network.chat.Component.literal("\u00a76[Mojave]\u00a7r " + text))));
+		}
+
 		JsonArray a = new JsonArray();
 		a.add(text);
 		String quoted = a.toString();
 		Osl.events.accept("{\"t\":\"toast\",\"text\":" + quoted.substring(1, quoted.length() - 1) + "}");
+	}
+
+	/** {"t":"say","text":...}: a line from New Vegas for the chat (its HUD is hidden in Minecraft mode). */
+	public static void say(final String text) {
+		MinecraftServer s = server;
+		if (s != null) {
+			s.execute(() -> s.getPlayerList().getPlayers().forEach(p -> p.sendSystemMessage(net.minecraft.network.chat.Component.literal("\u00a76[Mojave]\u00a7r " + text))));
+		}
 	}
 
 	/** The worldspace New Vegas is in: its strip of the Minecraft world (assigned on first visit). */

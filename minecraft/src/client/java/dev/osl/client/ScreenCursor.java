@@ -53,6 +53,9 @@ public final class ScreenCursor {
 			wasOpen = open;
 			x = y = -1;
 			down[0] = down[1] = false;
+			if (open && Takeover.on()) {
+				InputBridge.centreCursor(minecraft);
+			}
 			Osl.events.accept("{\"t\":\"screen\",\"open\":" + open + "}");
 		}
 	}

@@ -178,3 +178,12 @@ void MouseDelta(int &dx, int &dy)
 	dy = input ? Read<int>(input + 0x1B28) : 0;
 }
 }  // namespace game
+
+namespace game
+{
+int MouseWheel()
+{
+	uintptr_t input = Ptr(sheets::ADDR_INPUT_GLOBALS);
+	return input ? Read<int>(input + sheets::ADDR_MOUSE_WHEEL) : 0;
+}
+}  // namespace game

@@ -91,3 +91,16 @@ be added later.
 SkyCraft-style: Minecraft's physics move the player, all input goes to Minecraft (chat/commands too), Minecraft's
 HUD replaces New Vegas's, New Vegas NPCs fought with Minecraft weapons. Plan: 0.2.0 takeover (input, physics,
 camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrain.
+
+## 0.2.0 Minecraft mode (2026-10-08)
+- sheets/keymap.json: 99 keys, DirectInput -> SDL scancode (Minecraft 26.3 InputConstants are SDL scancodes);
+  owner newvegas: Esc, Tab, `, B, R, J. link.json: takeover, in, mv, btn, wheel, txt, me, say.
+- Minecraft: InputBridge (SkyCraft's approach) replays keys/mouse/text into KeyboardHandler/MouseHandler;
+  InputConstantsMixin answers isKeyDown from forwarded keys; Takeover turns physics on, puts Steve at the Courier's
+  feet, publishes "me" every frame; Minecraft's own camera is used (FOV still New Vegas's).
+- New Vegas: takeover.cpp disables New Vegas's controls (DisablePlayerControlsAlt) and Minecraft's keys
+  (DisableKey), tcl, hides the HUD (SetUIFloat HUDMainMenu/visible 0, re-applied), moves the Courier with a compiled
+  UDF (SetPos X/Y/Z, SetAngle X/Z), R activates GetCrosshairRef.
+- Harness: walking (W) moved Steve ~16 blocks and the Courier followed; T + typed "/say hello from the Mojave" ran;
+  found and fixed: New Vegas-owned keys swallowed letters while typing, two keymap rows on one Windows key typed
+  "//", and command feedback was off. Not yet in the real game: mouse look, HUD hiding, tcl, SetPos smoothness.

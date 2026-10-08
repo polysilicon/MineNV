@@ -13,6 +13,20 @@ final class ClientInput {
 	private ClientInput() {
 	}
 
+	/** Minecraft mode messages (sheets/link.json: takeover, in, mv, btn, wheel, txt). */
+	static void takeover(final Minecraft minecraft, final JsonObject m) {
+		switch (m.get("t").getAsString()) {
+			case "takeover" -> Takeover.set(minecraft, m);
+			case "in" -> InputBridge.key(minecraft, m.get("k").getAsInt(), m.get("d").getAsBoolean());
+			case "mv" -> InputBridge.move(minecraft, m.get("dx").getAsDouble(), m.get("dy").getAsDouble());
+			case "btn" -> InputBridge.button(minecraft, m.get("b").getAsInt(), m.get("d").getAsBoolean());
+			case "wheel" -> InputBridge.wheel(minecraft, m.get("d").getAsDouble());
+			case "txt" -> InputBridge.text(minecraft, m.get("c").getAsString());
+			default -> {
+			}
+		}
+	}
+
 	static void handle(final Minecraft minecraft, final JsonObject m) {
 		LocalPlayer player = minecraft.player;
 		switch (m.get("t").getAsString()) {

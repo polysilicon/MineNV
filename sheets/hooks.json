@@ -316,6 +316,69 @@
       "value": "kInterface_PlayerControls",
       "use": "build mode: no attacking/aiming; Minecraft screen: no moving/looking",
       "verified": "code: xNVSE source (xNVSE/NVSE) PluginAPI.h"
+    },
+    {
+      "id": "hud_hide",
+      "side": "nv",
+      "kind": "script",
+      "target": "SetUIFloat \"HUDMainMenu/visible\" 0|1",
+      "value": "xNVSE command",
+      "use": "Minecraft mode hides New Vegas's HUD (re-applied every second; menus reset it)",
+      "verified": "no: in game (xNVSE GetSetUIValue + kTileValue_visible exist)"
+    },
+    {
+      "id": "courier_follow",
+      "side": "nv",
+      "kind": "script",
+      "target": "UDF {float x, y, z, ax, az}: SetPos X/Y/Z, SetAngle X/Z on the player",
+      "value": "compiled once",
+      "use": "the Courier stands where Steve stands and looks where he looks",
+      "verified": "no: in game"
+    },
+    {
+      "id": "courier_noclip",
+      "side": "nv",
+      "kind": "script",
+      "target": "tcl (ToggleCollision) on the player while in Minecraft mode",
+      "value": "console command",
+      "use": "New Vegas's own gravity and collision don't fight Minecraft's physics",
+      "verified": "no: in game"
+    },
+    {
+      "id": "nv_activate",
+      "side": "nv",
+      "kind": "script",
+      "target": "UDF: ref r = GetCrosshairRef; r.Activate player",
+      "value": "compiled once",
+      "use": "R opens doors, talks, loots in Minecraft mode",
+      "verified": "no: in game (xNVSE GetCrosshairRef exists)"
+    },
+    {
+      "id": "mouse_wheel",
+      "side": "nv",
+      "kind": "address",
+      "target": "OSInputGlobals::currMouseWheelScroll offset",
+      "value": "0x1B2C",
+      "use": "wheel notches for Minecraft's hotbar",
+      "verified": "code: JIP LN NVSE source nvse/GameOSDepend.h currMouseWheelScroll // 1B2C"
+    },
+    {
+      "id": "mc_input_bridge",
+      "side": "mc",
+      "kind": "api",
+      "target": "KeyboardHandler.keyPress/textInput, MouseHandler.onMove/onButton/onScroll with the (hidden) window's handle",
+      "value": "InputBridge",
+      "use": "New Vegas's keys and mouse drive Minecraft as if its window had focus",
+      "verified": "code: SkyCraft InputBridge does the same on 26.3; test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "mc_key_state",
+      "side": "mc",
+      "kind": "mixin",
+      "target": "InputConstants.isKeyDown / grabMouse / releaseMouse",
+      "value": "InputConstantsMixin",
+      "use": "shift-click, sprint and sneak see the forwarded keys; no grabbing a hidden window's mouse",
+      "verified": "code: SkyCraft InputConstantsMixin; test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
     }
   ]
 }

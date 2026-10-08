@@ -16,6 +16,8 @@ public class Osl implements ModInitializer {
 	public static final Logger LOG = LoggerFactory.getLogger(ID);
 	/** True while New Vegas is driving the camera. The integrated server shares this JVM, so both sides read it. */
 	public static volatile boolean active;
+	/** Minecraft mode: Minecraft's physics move the player and New Vegas follows (0.2.0). Both sides read it. */
+	public static volatile boolean takeover;
 	/** Where events for New Vegas go (JSON lines); the client's HostLink sets it. */
 	public static volatile Consumer<String> events = message -> {};
 

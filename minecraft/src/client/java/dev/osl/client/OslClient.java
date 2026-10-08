@@ -44,7 +44,7 @@ public class OslClient implements ClientModInitializer {
 		"gamerule spawn_patrols false",
 		"gamerule spawn_phantoms false",
 		"gamerule spawn_wandering_traders false",
-		"gamerule send_command_feedback false",
+		"gamerule send_command_feedback true",
 		"gamerule log_admin_commands false",
 		"gamerule keep_inventory true",
 		"gamerule fall_damage false",
@@ -84,8 +84,9 @@ public class OslClient implements ClientModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.player;
 			// Steve hovers where the Courier stands: never falls into the void before New Vegas sends ground
-			player.getAbilities().mayfly = true;
-			player.getAbilities().flying = true;
+			// (in Minecraft mode Steve walks: Takeover turns flying off again)
+			player.getAbilities().mayfly = !Osl.takeover;
+			player.getAbilities().flying = !Osl.takeover;
 			player.onUpdateAbilities();
 			setupIn = 10;
 			// fixed words: Melty's first-run setup and the launcher wait for this line in latest.log

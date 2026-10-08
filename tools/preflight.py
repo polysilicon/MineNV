@@ -27,6 +27,7 @@ OPTIONAL = {
     "quests": {"nv_edid"},
     "perks": {"nv_items", "actor_value"},
     "link": {"fields"},
+    "keymap": {"note"},
 }
 
 
@@ -151,6 +152,24 @@ def main(argv):
             errors.append(f"keys.{r['id']}.mc_action: unknown key '{a[4:]}'")
         if a.startswith("slot:") and not 0 <= int(a[5:]) <= 8:
             errors.append(f"keys.{r['id']}.mc_action: slot out of range")
+
+    # keymap: unique codes, owners, the switch key stays with New Vegas
+    if "keymap" in sheets:
+        dk, sd = set(), set()
+        for r in sheets["keymap"]["rows"]:
+            if r["dik"] in dk:
+                errors.append(f"keymap.{r['id']}.dik: {r['dik']} twice")
+            if r["sdl"] in sd:
+                errors.append(f"keymap.{r['id']}.sdl: {r['sdl']} twice")
+            dk.add(r["dik"]); sd.add(r["sdl"])
+            if r["owner"] not in ("minecraft", "newvegas"):
+                errors.append(f"keymap.{r['id']}.owner: '{r['owner']}'")
+            if r["owner"] == "newvegas" and not r["note"]:
+                errors.append(f"keymap.{r['id']}.note: say what New Vegas does with it")
+        owners = {r["dik"]: r["owner"] for r in sheets["keymap"]["rows"]}
+        for r in sheets["keys"]["rows"]:
+            if r["mc_action"] == "toggle_build" and owners.get(r["nv_code"]) != "newvegas":
+                errors.append(f"keys.{r['id']}: the switch key must be a New Vegas key in keymap.json")
 
     # 3. Minecraft items exist
     jar = find_mc_jar(jar)

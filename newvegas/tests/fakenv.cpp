@@ -130,6 +130,26 @@ static bool FakeCallAlt(Script *s, TESObjectREFR *, UInt8 n, ...)
 	int count = n > 1 ? int(reinterpret_cast<intptr_t>(va_arg(a, void *))) : 0;
 	va_end(a);
 	const std::string &t = reinterpret_cast<FakeScript *>(s)->text;
+	if (t.find("SetPos X fx") != std::string::npos)
+	{
+		// the Courier follows Steve: move the fake player and its first-person camera
+		va_list b;
+		va_start(b, n);
+		float v[5];
+		for (int i = 0; i < 5; i++)
+		{
+			void *p = va_arg(b, void *);
+			std::memcpy(&v[i], &p, sizeof(float));
+		}
+		va_end(b);
+		std::memcpy(g_player + 0x30, v, sizeof(float) * 3);
+		extern void FollowCamera(const float *pos, float pitchDeg, float headingDeg);
+		FollowCamera(v, v[3], v[4]);
+		static int n = 0;
+		if (n++ % 60 == 0)
+			LOG("courier at %.1f %.1f %.1f pitch %.1f heading %.1f", v[0], v[1], v[2], v[3], v[4]);
+		return true;
+	}
 	UInt32 id = form ? *reinterpret_cast<UInt32 *>(static_cast<uint8_t *>(form) + 0xC) : 0;
 	LOG("script call: %s form %08X count %d", t.substr(t.find('\n') + 1, t.find('\n', t.find('\n') + 1) - t.find('\n') - 1).c_str(), id, count);
 	if (t.find("RemoveItem") != std::string::npos)
@@ -231,7 +251,18 @@ static void SaveBmp(IDirect3DDevice9 *d, const std::string &path)
 	LOG("saved %s", path.c_str());
 }
 
+static void SetCameraAt(float yawDeg, float pitchDeg, const float *eye);
+void FollowCamera(const float *pos, float pitchDeg, float headingDeg)
+{
+	float eye[3] = {pos[0], pos[1], pos[2] + 1.62f * 70.0f};
+	SetCameraAt(headingDeg, pitchDeg, eye);
+}
 static void SetCamera(float yawDeg, float pitchDeg)
+{
+	float eye[3] = {35.0f, -35.0f, kGroundZ + 1.62f * 70.0f};
+	SetCameraAt(yawDeg, pitchDeg, eye);
+}
+static void SetCameraAt(float yawDeg, float pitchDeg, const float *eye)
 {
 	// New Vegas camera: world rotate (row-major), first column = forward, second = up
 	float yaw = yawDeg * 3.14159265f / 180, pitch = pitchDeg * 3.14159265f / 180;
@@ -241,8 +272,7 @@ static void SetCamera(float yawDeg, float pitchDeg)
 	float rx = std::cos(yaw), ry = -std::sin(yaw), rz = 0;
 	float m[9] = {fx, ux, rx, fy, uy, ry, fz, uz, rz};
 	std::memcpy(g_camera + 0x68, m, sizeof m);
-	float t[3] = {35.0f, -35.0f, kGroundZ + 1.62f * 70.0f};
-	std::memcpy(g_camera + 0x8C, t, sizeof t);
+	std::memcpy(g_camera + 0x8C, eye, sizeof(float) * 3);
 	float tanHalf = std::tan(35.0f * 3.14159265f / 180);
 	float fr[7] = {-tanHalf * 16 / 9, tanHalf * 16 / 9, tanHalf, -tanHalf, 10.0f, 300000.0f, 0};
 	std::memcpy(g_camera + 0xDC, fr, sizeof fr);
@@ -389,14 +419,34 @@ int main(int argc, char **argv)
 		MSG msg;
 		while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE))
 			DispatchMessageA(&msg);
-		if (i == 150) Tap('B');
-		if (i == 152) Release('B');
-		if (i == 200) Tap('2');
-		if (i == 202) Release('2');
-		if (i == 260) Tap(VK_RBUTTON);
-		if (i == 263) Release(VK_RBUTTON);
-		if (i == 330) Tap('J');
-		if (i == 332) Release('J');
+		// Minecraft mode starts by itself: walk forward, open chat, run a command, salvage, back to New Vegas (B)
+		if (i == 150) Tap('W');
+		if (i == 230) Release('W');
+		if (i == 260) Tap('T');
+		if (i == 262) Release('T');
+		const char *line = "/say hello from the Mojave";
+		if (i >= 290 && i < 290 + 2 * int(std::strlen(line)))
+		{
+			char c = line[(i - 290) / 2];
+			SHORT vk = VkKeyScanA(c);
+			bool shift = (vk >> 8) & 1;
+			if ((i - 290) % 2 == 0)
+			{
+				if (shift) keybd_event(VK_SHIFT, 0, 0, 0);
+				keybd_event(BYTE(vk), BYTE(MapVirtualKeyA(vk & 0xFF, MAPVK_VK_TO_VSC)), 0, 0);
+			}
+			else
+			{
+				keybd_event(BYTE(vk), BYTE(MapVirtualKeyA(vk & 0xFF, MAPVK_VK_TO_VSC)), KEYEVENTF_KEYUP, 0);
+				if (shift) keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
+			}
+		}
+		if (i == 360) Tap(VK_RETURN);
+		if (i == 362) Release(VK_RETURN);
+		if (i == 380) Tap('J');
+		if (i == 382) Release('J');
+		if (i == 400) Tap('B');
+		if (i == 402) Release('B');
 		copyShared();
 		send(NVSEMessagingInterface::kMessage_MainGameLoop);
 		DrawScene(dev, W, H);

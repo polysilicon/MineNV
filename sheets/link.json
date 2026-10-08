@@ -125,7 +125,7 @@
       "fields": "text",
       "when": "chest landed, build recognised",
       "mc": "Economy",
-      "nv": "Ui::Message (QueueUIMessage)",
+      "nv": "Ui::Message; in Minecraft mode New Vegas's HUD is hidden, so Minecraft also shows it in chat",
       "verified": "no: in game"
     },
     {
@@ -145,6 +145,78 @@
       "mc": "ClientInput.handle (view)",
       "nv": "Plugin::SendView",
       "verified": "no: in game"
+    },
+    {
+      "id": "takeover",
+      "dir": "nv>mc",
+      "fields": "on bool, feet [x,y,z] where the Courier stands, yaw",
+      "when": "a save loads outdoors (on), B switches, indoors (off)",
+      "mc": "Takeover.set (physics on, Steve put at the Courier's feet)",
+      "nv": "Takeover::Set",
+      "verified": "test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "in",
+      "dir": "nv>mc",
+      "fields": "k SDL scancode, d down bool",
+      "when": "a Minecraft-owned key changes (keymap.json)",
+      "mc": "InputBridge.key (KeyboardHandler.keyPress)",
+      "nv": "Takeover::Keys",
+      "verified": "test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "mv",
+      "dir": "nv>mc",
+      "fields": "dx, dy mouse counts",
+      "when": "every frame the mouse moved",
+      "mc": "InputBridge.move (MouseHandler.onMove)",
+      "nv": "Takeover::Mouse",
+      "verified": "no: in game (sent by the plugin; the harness doesn't move the mouse yet)"
+    },
+    {
+      "id": "btn",
+      "dir": "nv>mc",
+      "fields": "b 0 left 1 right 2 middle, d down bool",
+      "when": "a mouse button changes",
+      "mc": "InputBridge.button (MouseHandler.onButton)",
+      "nv": "Takeover::Mouse",
+      "verified": "no: in game (sent by the plugin; the harness doesn't move the mouse yet)"
+    },
+    {
+      "id": "wheel",
+      "dir": "nv>mc",
+      "fields": "d notches",
+      "when": "the wheel turns",
+      "mc": "InputBridge.wheel (MouseHandler.onScroll)",
+      "nv": "Takeover::Mouse",
+      "verified": "no: in game (sent by the plugin; the harness doesn't move the mouse yet)"
+    },
+    {
+      "id": "txt",
+      "dir": "nv>mc",
+      "fields": "c typed text",
+      "when": "a key types a character while a Minecraft screen (chat, sign, anvil) is open",
+      "mc": "InputBridge.text (KeyboardHandler.textInput)",
+      "nv": "Takeover::Keys (ToUnicode)",
+      "verified": "test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "me",
+      "dir": "mc>nv",
+      "fields": "f [x,y,z] feet, e eye height, r [yaw,pitch], ground bool (worldspace coordinates, strip offset removed)",
+      "when": "every Minecraft frame while taken over",
+      "mc": "Takeover.publish",
+      "nv": "Takeover::Follow (Courier SetPos/SetAngle)",
+      "verified": "test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
+    },
+    {
+      "id": "say",
+      "dir": "nv>mc",
+      "fields": "text",
+      "when": "the plugin has something to tell the player while in Minecraft mode (New Vegas's HUD is hidden)",
+      "mc": "Economy.say (chat)",
+      "nv": "Takeover::Say",
+      "verified": "test: Wine harness (newvegas/tests/run_fakenv.sh, NVSE=old) with the real plugin and the dev client, 2026-10-08"
     }
   ]
 }

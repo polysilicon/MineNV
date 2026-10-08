@@ -98,7 +98,8 @@ public final class WorldBridge {
 
 		s.execute(() -> {
 			Osl.LOG.info("command: {}", command);
-			s.getCommands().performPrefixedCommand(s.createCommandSourceStack(), command);
+			// silent: the player's own commands answer in chat, the mashup's don't
+			s.getCommands().performPrefixedCommand(s.createCommandSourceStack().withSuppressedOutput(), command);
 		});
 	}
 

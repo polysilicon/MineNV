@@ -2,6 +2,6 @@
 	"required": true,
 	"package": "dev.osl.client.mixin",
 	"compatibilityLevel": "JAVA_25",
-	"client": ["AbstractClientPlayerMixin", "CameraMixin", "GlBackendDevMixin", "WindowMixin", "ClientLevelMixin", "EntityPickMixin", "FogRendererMixin", "GameRendererMixin", "GlCommandEncoderMixin", "KeyMappingAccessor", "LivingEntityMixin", "LocalPlayerMixin", "ToastManagerMixin"],
+	"client": ["AbstractClientPlayerMixin", "CameraMixin", "GlBackendDevMixin", "WindowMixin", "ClientLevelMixin", "EntityPickMixin", "FogRendererMixin", "GameRendererMixin", "GlCommandEncoderMixin", "InputConstantsMixin", "KeyMappingAccessor", "LivingEntityMixin", "LocalPlayerMixin", "ToastManagerMixin"],
 	"injectors": { "defaultRequire": 1 }
 }

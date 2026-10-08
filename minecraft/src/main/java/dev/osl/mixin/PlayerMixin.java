@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class PlayerMixin {
 	@Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;noPhysics:Z", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void osl$ghost(final CallbackInfo ci) {
-		if (Osl.active) {
+		if (Osl.active && !Osl.takeover) {
 			((Entity) (Object) this).noPhysics = true;
 		}
 	}

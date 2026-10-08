@@ -35,4 +35,6 @@ IDirect3DDevice9 *Device();
 void *GameWindow();
 /// Mouse movement this frame (DirectInput), for Minecraft's screen cursor.
 void MouseDelta(int &dx, int &dy);
+/// Mouse wheel movement this frame (DirectInput units, 120 per notch).
+int MouseWheel();
 }  // namespace game

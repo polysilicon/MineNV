@@ -1,0 +1,906 @@
+{
+ "sheet": "keymap",
+ "about": "Minecraft mode (0.2.0): every key New Vegas sees, by DirectInput scancode, with the SDL scancode Minecraft 26.3 uses. 'minecraft' keys go to Minecraft (New Vegas ignores them); 'newvegas' keys stay with New Vegas.",
+ "columns": {
+  "id": "row id",
+  "dik": "DirectInput scancode (xNVSE key code)",
+  "name": "key",
+  "sdl": "SDL scancode sent to Minecraft",
+  "owner": "minecraft | newvegas",
+  "note": "what a New Vegas key does",
+  "verified": "status"
+ },
+ "rows": [
+  {
+   "id": "dik_1",
+   "dik": 1,
+   "name": "Esc",
+   "sdl": 41,
+   "owner": "newvegas",
+   "note": "New Vegas pause menu (closes a Minecraft screen first)",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_2",
+   "dik": 2,
+   "name": "1",
+   "sdl": 30,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_3",
+   "dik": 3,
+   "name": "2",
+   "sdl": 31,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_4",
+   "dik": 4,
+   "name": "3",
+   "sdl": 32,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_5",
+   "dik": 5,
+   "name": "4",
+   "sdl": 33,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_6",
+   "dik": 6,
+   "name": "5",
+   "sdl": 34,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_7",
+   "dik": 7,
+   "name": "6",
+   "sdl": 35,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_8",
+   "dik": 8,
+   "name": "7",
+   "sdl": 36,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_9",
+   "dik": 9,
+   "name": "8",
+   "sdl": 37,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_10",
+   "dik": 10,
+   "name": "9",
+   "sdl": 38,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_11",
+   "dik": 11,
+   "name": "0",
+   "sdl": 39,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_12",
+   "dik": 12,
+   "name": "-",
+   "sdl": 45,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_13",
+   "dik": 13,
+   "name": "=",
+   "sdl": 46,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_14",
+   "dik": 14,
+   "name": "Backspace",
+   "sdl": 42,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_15",
+   "dik": 15,
+   "name": "Tab",
+   "sdl": 43,
+   "owner": "newvegas",
+   "note": "Pip-Boy",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_16",
+   "dik": 16,
+   "name": "Q",
+   "sdl": 20,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_17",
+   "dik": 17,
+   "name": "W",
+   "sdl": 26,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_18",
+   "dik": 18,
+   "name": "E",
+   "sdl": 8,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_19",
+   "dik": 19,
+   "name": "R",
+   "sdl": 21,
+   "owner": "newvegas",
+   "note": "New Vegas activate (doors, talking, looting)",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_20",
+   "dik": 20,
+   "name": "T",
+   "sdl": 23,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_21",
+   "dik": 21,
+   "name": "Y",
+   "sdl": 28,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_22",
+   "dik": 22,
+   "name": "U",
+   "sdl": 24,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_23",
+   "dik": 23,
+   "name": "I",
+   "sdl": 12,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_24",
+   "dik": 24,
+   "name": "O",
+   "sdl": 18,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_25",
+   "dik": 25,
+   "name": "P",
+   "sdl": 19,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_26",
+   "dik": 26,
+   "name": "[",
+   "sdl": 47,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_27",
+   "dik": 27,
+   "name": "]",
+   "sdl": 48,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_28",
+   "dik": 28,
+   "name": "Enter",
+   "sdl": 40,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_29",
+   "dik": 29,
+   "name": "Left Ctrl",
+   "sdl": 224,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_30",
+   "dik": 30,
+   "name": "A",
+   "sdl": 4,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_31",
+   "dik": 31,
+   "name": "S",
+   "sdl": 22,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_32",
+   "dik": 32,
+   "name": "D",
+   "sdl": 7,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_33",
+   "dik": 33,
+   "name": "F",
+   "sdl": 9,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_34",
+   "dik": 34,
+   "name": "G",
+   "sdl": 10,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_35",
+   "dik": 35,
+   "name": "H",
+   "sdl": 11,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_36",
+   "dik": 36,
+   "name": "J",
+   "sdl": 13,
+   "owner": "newvegas",
+   "note": "salvage New Vegas junk into Minecraft items",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_37",
+   "dik": 37,
+   "name": "K",
+   "sdl": 14,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_38",
+   "dik": 38,
+   "name": "L",
+   "sdl": 15,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_39",
+   "dik": 39,
+   "name": ";",
+   "sdl": 51,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_40",
+   "dik": 40,
+   "name": "'",
+   "sdl": 52,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_41",
+   "dik": 41,
+   "name": "`",
+   "sdl": 53,
+   "owner": "newvegas",
+   "note": "New Vegas console",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_42",
+   "dik": 42,
+   "name": "Left Shift",
+   "sdl": 225,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_43",
+   "dik": 43,
+   "name": "\\",
+   "sdl": 49,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_44",
+   "dik": 44,
+   "name": "Z",
+   "sdl": 29,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_45",
+   "dik": 45,
+   "name": "X",
+   "sdl": 27,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_46",
+   "dik": 46,
+   "name": "C",
+   "sdl": 6,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_47",
+   "dik": 47,
+   "name": "V",
+   "sdl": 25,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_48",
+   "dik": 48,
+   "name": "B",
+   "sdl": 5,
+   "owner": "newvegas",
+   "note": "switch between Minecraft and New Vegas controls",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_49",
+   "dik": 49,
+   "name": "N",
+   "sdl": 17,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_50",
+   "dik": 50,
+   "name": "M",
+   "sdl": 16,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_51",
+   "dik": 51,
+   "name": ",",
+   "sdl": 54,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_52",
+   "dik": 52,
+   "name": ".",
+   "sdl": 55,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_53",
+   "dik": 53,
+   "name": "/",
+   "sdl": 56,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_54",
+   "dik": 54,
+   "name": "Right Shift",
+   "sdl": 229,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_55",
+   "dik": 55,
+   "name": "Numpad *",
+   "sdl": 85,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_56",
+   "dik": 56,
+   "name": "Left Alt",
+   "sdl": 226,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_57",
+   "dik": 57,
+   "name": "Space",
+   "sdl": 44,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_58",
+   "dik": 58,
+   "name": "Caps Lock",
+   "sdl": 57,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_59",
+   "dik": 59,
+   "name": "F1",
+   "sdl": 58,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_60",
+   "dik": 60,
+   "name": "F2",
+   "sdl": 59,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_61",
+   "dik": 61,
+   "name": "F3",
+   "sdl": 60,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_62",
+   "dik": 62,
+   "name": "F4",
+   "sdl": 61,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_63",
+   "dik": 63,
+   "name": "F5",
+   "sdl": 62,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_64",
+   "dik": 64,
+   "name": "F6",
+   "sdl": 63,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_65",
+   "dik": 65,
+   "name": "F7",
+   "sdl": 64,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_66",
+   "dik": 66,
+   "name": "F8",
+   "sdl": 65,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_67",
+   "dik": 67,
+   "name": "F9",
+   "sdl": 66,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_68",
+   "dik": 68,
+   "name": "F10",
+   "sdl": 67,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_69",
+   "dik": 69,
+   "name": "Num Lock",
+   "sdl": 83,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_70",
+   "dik": 70,
+   "name": "Scroll Lock",
+   "sdl": 71,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_71",
+   "dik": 71,
+   "name": "Numpad 7",
+   "sdl": 95,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_72",
+   "dik": 72,
+   "name": "Numpad 8",
+   "sdl": 96,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_73",
+   "dik": 73,
+   "name": "Numpad 9",
+   "sdl": 97,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_74",
+   "dik": 74,
+   "name": "Numpad -",
+   "sdl": 86,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_75",
+   "dik": 75,
+   "name": "Numpad 4",
+   "sdl": 92,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_76",
+   "dik": 76,
+   "name": "Numpad 5",
+   "sdl": 93,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_77",
+   "dik": 77,
+   "name": "Numpad 6",
+   "sdl": 94,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_78",
+   "dik": 78,
+   "name": "Numpad +",
+   "sdl": 87,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_79",
+   "dik": 79,
+   "name": "Numpad 1",
+   "sdl": 89,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_80",
+   "dik": 80,
+   "name": "Numpad 2",
+   "sdl": 90,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_81",
+   "dik": 81,
+   "name": "Numpad 3",
+   "sdl": 91,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_82",
+   "dik": 82,
+   "name": "Numpad 0",
+   "sdl": 98,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_83",
+   "dik": 83,
+   "name": "Numpad .",
+   "sdl": 99,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_87",
+   "dik": 87,
+   "name": "F11",
+   "sdl": 68,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_88",
+   "dik": 88,
+   "name": "F12",
+   "sdl": 69,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_156",
+   "dik": 156,
+   "name": "Numpad Enter",
+   "sdl": 88,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_157",
+   "dik": 157,
+   "name": "Right Ctrl",
+   "sdl": 228,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_181",
+   "dik": 181,
+   "name": "Numpad /",
+   "sdl": 84,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_184",
+   "dik": 184,
+   "name": "Right Alt",
+   "sdl": 230,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_199",
+   "dik": 199,
+   "name": "Home",
+   "sdl": 74,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_200",
+   "dik": 200,
+   "name": "Up",
+   "sdl": 82,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_201",
+   "dik": 201,
+   "name": "Page Up",
+   "sdl": 75,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_203",
+   "dik": 203,
+   "name": "Left",
+   "sdl": 80,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_205",
+   "dik": 205,
+   "name": "Right",
+   "sdl": 79,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_207",
+   "dik": 207,
+   "name": "End",
+   "sdl": 77,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_208",
+   "dik": 208,
+   "name": "Down",
+   "sdl": 81,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_209",
+   "dik": 209,
+   "name": "Page Down",
+   "sdl": 78,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_210",
+   "dik": 210,
+   "name": "Insert",
+   "sdl": 73,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  },
+  {
+   "id": "dik_211",
+   "dik": 211,
+   "name": "Delete",
+   "sdl": 76,
+   "owner": "minecraft",
+   "note": "",
+   "verified": "docs: DirectInput DIK_* and SDL3 SDL_SCANCODE_* tables; Minecraft 26.3 InputConstants KEY_* are SDL scancodes (KEY_T=23, KEY_RETURN=40)"
+  }
+ ]
+}

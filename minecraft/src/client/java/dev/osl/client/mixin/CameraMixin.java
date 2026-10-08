@@ -48,8 +48,8 @@ abstract class CameraMixin {
 	@Inject(method = "alignWithEntity", at = @At("TAIL"))
 	private void osl$hostCamera(final float partialTicks, final CallbackInfo ci) {
 		HostState.Pose p = HostState.frame();
-		if (p == null) {
-			return;
+		if (p == null || dev.osl.client.Takeover.on()) {
+			return; // Minecraft mode: Minecraft's own camera, New Vegas follows it
 		}
 
 		this.xRot = p.pitch();
@@ -78,5 +78,6 @@ abstract class CameraMixin {
 	@Inject(method = "update", at = @At("TAIL"))
 	private void osl$planes(final DeltaTracker deltaTracker, final CallbackInfo ci) {
 		FrameExporter.setFar(this.depthFar);
+		dev.osl.client.Takeover.publish(deltaTracker.getGameTimeDeltaPartialTick(true));
 	}
 }

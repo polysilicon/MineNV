@@ -71,6 +71,14 @@ public final class HostLink extends WebSocketServer {
 	@Override
 	public void onClose(final WebSocket conn, final int code, final String reason, final boolean remote) {
 		Osl.LOG.info("New Vegas disconnected ({} {})", code, reason);
+		if (Osl.takeover) {
+			// New Vegas went away mid-game: stop playing by ourselves, let go of every key
+			Minecraft minecraft = Minecraft.getInstance();
+			minecraft.execute(() -> {
+				Osl.takeover = false;
+				InputBridge.releaseAll(minecraft);
+			});
+		}
 		lastSeenNanos = System.nanoTime();
 	}
 
@@ -80,11 +88,16 @@ public final class HostLink extends WebSocketServer {
 			JsonObject m = JsonParser.parseString(message).getAsJsonObject();
 			switch (m.get("t").getAsString()) {
 				case "cam" -> HostState.update(m);
+				case "takeover", "in", "mv", "btn", "wheel", "txt" -> {
+					Minecraft minecraft = Minecraft.getInstance();
+					minecraft.execute(() -> ClientInput.takeover(minecraft, m));
+				}
 				case "ground" -> WorldBridge.solid(columns(m.getAsJsonArray("c")));
 				case "clear" -> WorldBridge.clearSolid();
 				case "blocksync" -> WorldBridge.sync(m.has("r") ? m.get("r").getAsInt() : 32);
 				case "give" -> Economy.give(stacks(m.getAsJsonArray("items")), m.has("why") ? m.get("why").getAsString() : "");
 				case "quest" -> Economy.questDone(m.get("id").getAsString());
+				case "say" -> Economy.say(m.get("text").getAsString());
 				case "devreset" -> {
 					if (Boolean.getBoolean("osl.allowCommands")) {
 						Economy.resetForTest();

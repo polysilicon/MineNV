@@ -5,8 +5,11 @@ Steve's hotbar in the Courier's hands: Minecraft blocks, built into New Vegas. A
 You play New Vegas. Minecraft runs hidden next to it, follows New Vegas's camera, and its picture is drawn inside
 New Vegas, so Minecraft blocks stand in the Mojave and New Vegas's own ground, rocks and roofs hold them up.
 
-- **Build mode (B):** Steve's hand, hotbar and crosshair appear in the Courier's view. Left click breaks, right
-  click places, 1-9 pick a block, I opens Minecraft's inventory (with a cursor). Outdoors only.
+- **Minecraft mode (on by itself outdoors):** you play as Steve. Minecraft's physics move you over New Vegas's
+  ground, rocks and roofs, the Courier and New Vegas's camera follow, and Minecraft's HUD replaces New Vegas's.
+  Every Minecraft key works: mining and placing, hotbar, E inventory, Q drop, F5 camera, **T chat and / commands**.
+  New Vegas keeps Esc (pause menu), Tab (Pip-Boy), the console key, **R** (open doors, talk, loot) and **B**
+  (switch to New Vegas controls and back). Indoors New Vegas has the controls.
 - **Salvage (J):** New Vegas junk becomes Minecraft items. Scrap metal becomes stone bricks and iron, tin cans become
   sandstone, Wonderglue becomes slime balls, and so on (14 kinds of junk).
 - **Builds unlock Courier perks:** a farm (8 planted farmland) sends fresh food every in-game day, a house (bed,

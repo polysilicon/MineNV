@@ -122,6 +122,11 @@ def cpp():
         out.append(f"\t{{{cstr(r['id'])}, {cstr(r['name'])}, {'true' if r['kind'] == 'daily' else 'false'}, {{{it}}}, {len(items)}, {avs}, {av[1]}, {cstr(r['message'])}}},")
     out += ["};", ""]
 
+    out += ["// keymap.json: DirectInput scancode -> SDL scancode for Minecraft (newvegas keys stay with New Vegas)",
+            "struct KeyMap { int dik; int sdl; bool minecraft; const char* name; };", "constexpr KeyMap KEYMAP[] = {"]
+    out += [f"\t{{{r['dik']}, {r['sdl']}, {'true' if r['owner'] == 'minecraft' else 'false'}, {cstr(r['name'])}}}," for r in sheet("keymap")]
+    out += ["};", ""]
+
     out += ["// quests.json", "struct Quest { const char* id; const char* nvName; };", "constexpr Quest QUESTS[] = {"]
     out += [f"\t{{{cstr(r['id'])}, {cstr(r['nv_name'])}}}," for r in sheet("quests")]
     out += ["};", "", "}  // namespace sheets", ""]

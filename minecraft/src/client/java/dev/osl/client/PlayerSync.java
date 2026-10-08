@@ -25,7 +25,7 @@ public final class PlayerSync {
 		HostState.Pose p = HostState.frame();
 		Minecraft minecraft = Minecraft.getInstance();
 		LocalPlayer player = minecraft.player;
-		if (p == null || player == null) {
+		if (p == null || player == null || Takeover.on()) {
 			return;
 		}
 
@@ -56,7 +56,7 @@ public final class PlayerSync {
 	 */
 	public static void tick(final LocalPlayer player) {
 		HostState.Pose p = HostState.live();
-		if (p == null) {
+		if (p == null || Takeover.on()) {
 			return;
 		}
 
