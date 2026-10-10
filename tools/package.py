@@ -31,6 +31,10 @@ PRISM_URL = f"https://github.com/PrismLauncher/PrismLauncher/releases/download/{
 PRISM_SHA256 = "ab35a770fb06d89d2ccc098079db5db329fb4e68f42b72babd8b095efde3d2d7"
 FABRIC_API_URL = "https://cdn.modrinth.com/data/P7dR8mSH/versions/bNnaTiuM/fabric-api-0.161.0%2B26.3.jar"
 FABRIC_API_SHA512 = "ed6b2586d6fde11fde8472f5a527c51e99b67026e46f94d4bfd85e7e28ce5ee299173ee16ad576ceb51f39f98d30a811086a6deb1a86a524859cc16e12da109d"
+# e4mc (MIT): "Open to LAN" gives the host's world an internet address friends join without port forwarding
+E4MC_JAR = "e4mc-fabric-6.2.2-modern.jar"
+E4MC_URL = "https://cdn.modrinth.com/data/qANg5Jrr/versions/AouleFRY/e4mc-fabric-6.2.2-modern.jar"
+E4MC_SHA512 = "01ef0a8c5b76e2cb0effd337bad3350d8807d100d0ec661e01b2ffb20af7b652f756c5eaa11bee233c37905bfd7b573f7a85f3d15bfd2833962c76f02cd59a86"
 INSTANCE = "OverworldSupplyLine"
 
 
@@ -167,6 +171,7 @@ def main():
 
     prism = fetch(PRISM_URL, PRISM_ZIP, "sha256", PRISM_SHA256)
     fabric_api = fetch(FABRIC_API_URL, "fabric-api-0.161.0+26.3.jar", "sha512", FABRIC_API_SHA512)
+    e4mc = fetch(E4MC_URL, E4MC_JAR, "sha512", E4MC_SHA512)
     entries = {}
     with zipfile.ZipFile(prism) as z:
         for info in z.infolist():
@@ -188,11 +193,14 @@ def main():
         # fixed names: an update replaces the jars instead of leaving two versions side by side
         inst + ".minecraft/mods/overworld-supply-line.jar": jar,
         inst + ".minecraft/mods/fabric-api.jar": fabric_api,
+        inst + ".minecraft/mods/e4mc.jar": e4mc,
         "README.txt": README_TXT,
         "THIRD-PARTY-NOTICES.md": notices + (
             "\n## Prism Launcher (GPL-3.0)\nBundled unmodified: Prism Launcher " + PRISM_VERSION + ", "
             "https://prismlauncher.org/. Source: https://github.com/PrismLauncher/PrismLauncher/tree/" + PRISM_VERSION + "\n"
             "\n## Fabric API (Apache-2.0)\nBundled unmodified: Fabric API 0.161.0+26.3, https://github.com/FabricMC/fabric\n"
+            "\n## e4mc (MIT)\nBundled unmodified: e4mc 6.2.2 (Fabric), lets friends join the host's world over the internet. "
+            "https://github.com/vgskye/e4mc-minecraft-architectury\n"
             "\n## Fabric Loader (Apache-2.0)\nDownloaded by Prism Launcher from https://maven.fabricmc.net/ on first start.\n").encode(),
     })
     mc_zip = os.path.join(DIST, f"OverworldSupplyLine-Minecraft-{v}.zip")

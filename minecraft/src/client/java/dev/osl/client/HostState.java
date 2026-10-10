@@ -2,7 +2,6 @@ package dev.osl.client;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dev.osl.Economy;
 import dev.osl.Osl;
 import dev.osl.Space;
 
@@ -39,8 +38,8 @@ public final class HostState {
 			int ws = m.get("ws").getAsInt();
 			if (ws != worldspace) {
 				worldspace = ws;
-				Economy.worldspace(ws);
-				Osl.LOG.info("New Vegas worldspace {} -> strip offset {}", Integer.toHexString(ws), Space.offsetX());
+				Relay.toWorld("{\"t\":\"ws\",\"id\":" + ws + "}");
+				Osl.LOG.info("New Vegas worldspace {}", Integer.toHexString(ws));
 			}
 		}
 
@@ -60,6 +59,14 @@ public final class HostState {
 			System.nanoTime(),
 			m.has("build") && m.get("build").getAsBoolean()
 		);
+	}
+
+	/** After joining a world: it hears which worldspace New Vegas is in (and answers with its strip). */
+	static void resendWorldspace() {
+		int ws = worldspace;
+		if (ws != Integer.MIN_VALUE) {
+			Relay.toWorld("{\"t\":\"ws\",\"id\":" + ws + "}");
+		}
 	}
 
 	/** The latest pose if New Vegas is still sending, else null. */

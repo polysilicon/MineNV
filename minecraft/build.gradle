@@ -18,7 +18,15 @@ loom {
 		// dev client: a fixed window size so the camera/projection maths is easy to check; commands allowed for tests
 		client {
 			programArgs "--width", "1280", "--height", "720", "--username", "Courier"
-			vmArgs "--enable-native-access=ALL-UNNAMED", "-Dosl.allowCommands=true", "-Dosl.devNoSrgb=" + (System.getenv("OSL_DEV_NO_SRGB") ?: "false")
+			vmArgs "--enable-native-access=ALL-UNNAMED", "-Dosl.allowCommands=true", "-Dosl.lanPort=25570", "-Dosl.offlineFriends=true", "-Dosl.devNoSrgb=" + (System.getenv("OSL_DEV_NO_SRGB") ?: "false")
+		}
+		// a second player for multiplayer tests: its own folder, link port and frame, and join=127.0.0.1:25570
+		// in run-friend/config/mojavecraft.properties joins the dev client's world
+		friend {
+			client()
+			runDir "run-friend"
+			programArgs "--width", "1280", "--height", "720", "--username", "Friend"
+			vmArgs "--enable-native-access=ALL-UNNAMED", "-Dosl.port=25600", "-Dosl.frame=Local\\OSLFrame2", "-Dosl.devNoSrgb=" + (System.getenv("OSL_DEV_NO_SRGB") ?: "false")
 		}
 	}
 }

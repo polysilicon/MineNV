@@ -155,3 +155,23 @@ camera, HUD, collision field), 0.3.0 combat, later digging into New Vegas terrai
   npchit by player; zombie -> npchit by zombie; hurt 50 -> Steve damaged; egg on the ground / in the air ->
   spawnnpc once per click. fake_newvegas.py 18/18; Wine harness: combat scripts compile, no crash, overlay drawn.
 - Not yet checked in the real game: the actor list, DamageAV/StartCombat, PlaceAtMe placement, health watching.
+
+## 0.4.0: multiplayer (2026-10-10)
+- Asked: multiplayer. Chosen: a shared Minecraft world plus shared NPCs (each player keeps their own New Vegas).
+- Melty: recipe multiplayer {maxPlayers 8, connect.address from latest.log after "this world is open to friends at ",
+  joinFile config/mojavecraft.properties join=} (CyberCraft's approach, MIT). e4mc 6.2.2 bundled (MIT, Modrinth,
+  sha512 pinned): the host's world opens to LAN as soon as it loads, e4mc posts its address in chat, Friends.java logs it.
+  A friend's Minecraft joins join= instead of opening its own world; a failed or closed join falls back to their own.
+- Everything server-side was per-single-player (statics, players.get(0), in-process calls from the client):
+  now each player's Minecraft relays their New Vegas's world messages over custom payloads (Net: osl:nv up,
+  osl:ev down), and the server keeps a Courier per player (active, Minecraft mode, worldspace strip). Rewards
+  (quests, builds, starter kit) are per player in osl_state.json; a pre-0.4.0 world's rewards go to its owner.
+  Ground only near its player; a ground reset sweeps old barriers only when nobody else is near.
+- Shared NPCs: stand-ins are visible, named villagers (New Vegas sends GetName); the owner's Minecraft hides its own
+  ("mine" ids, Entity.isInvisible client-side) and still hits them. Hits go to the owner's New Vegas: "player" when
+  the owner hit (StartCombat), "friend" for a friend's Steve. Item names from a guest are checked server-side.
+- Tests (dev client + a second dev client "Friend" joining over LAN, offline auth for dev only): 8/8 two-player
+  checks (each NPC hit reaches its owner's New Vegas only, the friend's salvage/quest/toast/hurt/blocks reach only the
+  friend, both get their own quest chest), frames: each sees the other's named stand-in and not their own;
+  combat_test single player; fake_newvegas.py 18/18; Wine harness with the real DLL; BuildDetector tests 7/7.
+- Not tested here: e4mc over the internet (needs real Microsoft accounts), two real New Vegas games.

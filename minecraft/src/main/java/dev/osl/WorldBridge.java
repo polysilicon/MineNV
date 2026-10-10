@@ -21,6 +21,8 @@ public final class WorldBridge {
 	private static final Map<BlockPos, Boolean> changes = new LinkedHashMap<>();
 	/** While placing or removing the host's own ground: those changes aren't news to the host (server thread only). */
 	private static boolean placingGround;
+	/** How far from a player their New Vegas may place ground, and hears about block changes. */
+	private static final int NEAR = 96, REPORT = 128;
 
 	private WorldBridge() {
 	}
@@ -42,65 +44,69 @@ public final class WorldBridge {
 		return server;
 	}
 
-	/** Columns of solid ground from the host: {x, z, yBottom, yTop, ...} in block coordinates (inclusive). Only air is replaced. */
-	public static void solid(final int[] columns) {
-		MinecraftServer s = server;
-		if (s == null) {
-			return;
-		}
-
-		s.execute(() -> {
-			ServerLevel level = s.overworld();
-			BlockState barrier = Blocks.BARRIER.defaultBlockState();
-			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-			placingGround = true;
-			for (int i = 0; i + 3 < columns.length; i += 4) {
-				for (int y = columns[i + 2]; y <= columns[i + 3]; y++) {
-					pos.set(columns[i], y, columns[i + 1]);
-					if (level.isInWorldBounds(pos) && level.getBlockState(pos).isAir()) {
-						level.setBlock(pos, barrier, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-						barriers.add(pos.immutable());
-					}
-				}
+	/**
+	 * Columns of solid ground from a player's New Vegas: {x, z, yBottom, yTop, ...} in their worldspace's block
+	 * coordinates (inclusive), shifted into its strip here. Only air is replaced, and only near that player.
+	 */
+	static void solid(final MinecraftServer s, final ServerPlayer player, final Courier c, final int[] columns) {
+		ServerLevel level = s.overworld();
+		BlockState barrier = Blocks.BARRIER.defaultBlockState();
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		BlockPos near = player.blockPosition();
+		placingGround = true;
+		for (int i = 0; i + 3 < columns.length; i += 4) {
+			int x = columns[i] + c.offsetX, z = columns[i + 1];
+			if (Math.abs(x - near.getX()) > NEAR || Math.abs(z - near.getZ()) > NEAR) {
+				continue;
 			}
 
-			placingGround = false;
-		});
+			for (int y = Math.max(columns[i + 2], level.getMinY()), top = Math.min(columns[i + 3], columns[i + 2] + 64); y <= top; y++) {
+				pos.set(x, y, z);
+				if (level.isInWorldBounds(pos) && level.getBlockState(pos).isAir()) {
+					level.setBlock(pos, barrier, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+					barriers.add(pos.immutable());
+				}
+			}
+		}
+
+		placingGround = false;
 	}
 
-	/** Remove every barrier we placed (e.g. when the host teleports somewhere else). */
-	public static void clearSolid() {
-		MinecraftServer s = server;
-		if (s == null) {
-			return;
+	/** Remove the barriers around this player (their New Vegas teleported, or probes the ground again). */
+	static void clearSolid(final MinecraftServer s, final ServerPlayer player) {
+		ServerLevel level = s.overworld();
+		placingGround = true;
+		BlockPos c = player.blockPosition();
+		boolean alone = s.getPlayerList().getPlayers().stream().noneMatch(o -> o != player && o.blockPosition().closerThan(c, NEAR * 2.0));
+		if (alone) {
+			// nobody else's ground is around: everything goes, also strays from earlier sessions
+			sweepBarriers(level, c);
 		}
 
-		s.execute(() -> {
-			ServerLevel level = s.overworld();
-			placingGround = true;
-			sweepBarriers(s, level);
-			for (BlockPos pos : barriers) {
-				if (level.getBlockState(pos).is(Blocks.BARRIER)) {
-					level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-				}
+		for (java.util.Iterator<BlockPos> it = barriers.iterator(); it.hasNext();) {
+			BlockPos pos = it.next();
+			if (Math.abs(pos.getX() - c.getX()) > NEAR || Math.abs(pos.getZ() - c.getZ()) > NEAR) {
+				continue;
 			}
 
-			placingGround = false;
-			barriers.clear();
-		});
+			if (alone && level.getBlockState(pos).is(Blocks.BARRIER)) {
+				level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+			}
+
+			if (alone) {
+				it.remove();
+			}
+		}
+
+		placingGround = false;
 	}
 
 	/**
 	 * Every barrier around the player goes (players can't place barriers in survival, so they are all New Vegas's
 	 * ground, some from earlier sessions that this session never tracked); New Vegas probes the ground again after.
+	 * The Mojave's ground is the same for everyone, so with a friend nearby their barriers stay (they're the same ones).
 	 */
-	private static void sweepBarriers(final MinecraftServer s, final ServerLevel level) {
-		ServerPlayer player = s.getPlayerList().getPlayers().isEmpty() ? null : s.getPlayerList().getPlayers().get(0);
-		if (player == null) {
-			return;
-		}
-
-		BlockPos c = player.blockPosition();
+	private static void sweepBarriers(final ServerLevel level, final BlockPos c) {
 		int r = Sheets.BARRIER_SWEEP_RADIUS;
 		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
 		int removed = 0;
@@ -146,13 +152,11 @@ public final class WorldBridge {
 
 	/** Server thread, from Level.setBlock: remember the change; flushed once per tick. */
 	public static void onBlockChanged(final ServerLevel level, final BlockPos pos, final BlockState state) {
-		if (!Osl.active || level != level.getServer().overworld()) {
+		if (server == null || placingGround || level != level.getServer().overworld()) {
 			return;
 		}
 
-		if (!placingGround && Space.inCurrent(pos.getX())) {
-			changes.put(pos.immutable(), solidForHost(level, pos, state));
-		}
+		changes.put(pos.immutable(), solidForHost(level, pos, state));
 	}
 
 	/** While on, block changes are the host's own ground being edited (not reported as blocks to collide with). */
@@ -160,59 +164,65 @@ public final class WorldBridge {
 		placingGround = on;
 	}
 
-	/** End of each server tick: {"t":"blocks","set":[x,y,z,...],"clear":[x,y,z,...]}. */
+	/**
+	 * End of each server tick: {"t":"blocks","set":[x,y,z,...],"clear":[x,y,z,...]} to each player's New Vegas, the
+	 * changes in their worldspace's strip near them, in its own coordinates.
+	 */
 	static void flush(final MinecraftServer s) {
 		if (changes.isEmpty()) {
 			return;
 		}
 
-		StringBuilder set = new StringBuilder();
-		StringBuilder clear = new StringBuilder();
-		for (Map.Entry<BlockPos, Boolean> e : changes.entrySet()) {
-			StringBuilder b = e.getValue() ? set : clear;
-			BlockPos p = e.getKey();
-			b.append(b.isEmpty() ? "" : ",").append(p.getX() - Space.offsetX()).append(',').append(p.getY()).append(',').append(p.getZ());
+		for (Courier c : Courier.all()) {
+			ServerPlayer player = c.player(s);
+			if (player == null || !c.active) {
+				continue;
+			}
+
+			BlockPos near = player.blockPosition();
+			StringBuilder set = new StringBuilder();
+			StringBuilder clear = new StringBuilder();
+			for (Map.Entry<BlockPos, Boolean> e : changes.entrySet()) {
+				BlockPos p = e.getKey();
+				if (!c.inStrip(p.getX()) || Math.abs(p.getX() - near.getX()) > REPORT || Math.abs(p.getZ() - near.getZ()) > REPORT) {
+					continue;
+				}
+
+				StringBuilder b = e.getValue() ? set : clear;
+				b.append(b.isEmpty() ? "" : ",").append(p.getX() - c.offsetX).append(',').append(p.getY()).append(',').append(p.getZ());
+			}
+
+			if (!set.isEmpty() || !clear.isEmpty()) {
+				c.send(s, "{\"t\":\"blocks\",\"set\":[" + set + "],\"clear\":[" + clear + "]}");
+			}
 		}
 
 		changes.clear();
-		Osl.events.accept("{\"t\":\"blocks\",\"set\":[" + set + "],\"clear\":[" + clear + "]}");
 	}
 
-	/** Every solid block within `radius` of the player, as one "blocks" message (the host's props start from this). */
-	public static void sync(final int radius) {
-		MinecraftServer s = server;
-		if (s == null) {
-			return;
-		}
+	/** Every solid block within `radius` of the player, as one "blocks" message to their New Vegas. */
+	static void sync(final MinecraftServer s, final ServerPlayer player, final Courier c, final int radius) {
+		ServerLevel level = s.overworld();
+		BlockPos center = player.blockPosition();
+		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+		StringBuilder set = new StringBuilder();
+		int found = 0;
+		for (int x = -radius; x <= radius && found < 3000; x++) {
+			for (int z = -radius; z <= radius && found < 3000; z++) {
+				for (int y = -24; y <= 40; y++) {
+					p.set(center.getX() + x, center.getY() + y, center.getZ() + z);
+					if (!level.isInWorldBounds(p) || !level.isLoaded(p)) {
+						continue;
+					}
 
-		s.execute(() -> {
-			ServerLevel level = s.overworld();
-			ServerPlayer player = s.getPlayerList().getPlayers().isEmpty() ? null : s.getPlayerList().getPlayers().get(0);
-			if (player == null) {
-				return;
-			}
-
-			BlockPos c = player.blockPosition();
-			BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
-			int found = 0;
-			for (int x = -radius; x <= radius && found < 3000; x++) {
-				for (int z = -radius; z <= radius && found < 3000; z++) {
-					for (int y = -24; y <= 40; y++) {
-						p.set(c.getX() + x, c.getY() + y, c.getZ() + z);
-						if (!level.isInWorldBounds(p) || !level.isLoaded(p)) {
-							continue;
-						}
-
-						BlockState state = level.getBlockState(p);
-						if (solidForHost(level, p, state)) {
-							changes.put(p.immutable(), true);
-							found++;
-						}
+					if (solidForHost(level, p, level.getBlockState(p))) {
+						set.append(set.isEmpty() ? "" : ",").append(p.getX() - c.offsetX).append(',').append(p.getY()).append(',').append(p.getZ());
+						found++;
 					}
 				}
 			}
+		}
 
-			flush(s);
-		});
+		c.send(s, "{\"t\":\"blocks\",\"set\":[" + set + "],\"clear\":[]}");
 	}
 }

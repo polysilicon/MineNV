@@ -71,6 +71,8 @@ public class OslClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		HostLink.launch();
+		Relay.register();
+		Friends.register();
 		ClientTickEvents.END_CLIENT_TICK.register(OslClient::tick);
 		ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> ScreenEvents.afterExtract(screen).register((s, g, mx, my, delta) -> {
 			int[] at = ScreenCursor.guiPosition(client);
@@ -86,12 +88,12 @@ public class OslClient implements ClientModInitializer {
 			ServerPlayer player = handler.player;
 			// Steve hovers where the Courier stands: never falls into the void before New Vegas sends ground
 			// (in Minecraft mode Steve walks: Takeover turns flying off again)
-			player.getAbilities().mayfly = !Osl.takeover;
-			player.getAbilities().flying = !Osl.takeover;
+			dev.osl.Courier c = dev.osl.Courier.find(player.getUUID());
+			boolean walking = c != null && c.takeover();
+			player.getAbilities().mayfly = !walking;
+			player.getAbilities().flying = !walking;
 			player.onUpdateAbilities();
 			setupIn = 10;
-			// fixed words: Melty's first-run setup and the launcher wait for this line in latest.log
-			Osl.LOG.info("OSL ready: world {} open", WORLD);
 		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			if (setupIn > 0 && --setupIn == 0) {
@@ -124,6 +126,11 @@ public class OslClient implements ClientModInitializer {
 		if (minecraft.player != null && minecraft.gui.screen() instanceof DeathScreen && --respawnIn <= 0) {
 			respawnIn = 40;
 			minecraft.player.respawn();
+		}
+
+		Relay.tick();
+		if (Friends.tick(minecraft)) {
+			worldRequested = false; // a friend's world closed or couldn't be reached: back to our own
 		}
 
 		if (!configured) {
@@ -159,6 +166,10 @@ public class OslClient implements ClientModInitializer {
 	}
 
 	private static void openWorld(final Minecraft minecraft) {
+		if (Friends.joinIfAsked(minecraft)) {
+			return;
+		}
+
 		if (minecraft.getLevelSource().levelExists(WORLD)) {
 			Osl.LOG.info("opening world {}", WORLD);
 			minecraft.createWorldOpenFlows().openWorld(WORLD, () -> minecraft.gui.setScreen(new TitleScreen()));

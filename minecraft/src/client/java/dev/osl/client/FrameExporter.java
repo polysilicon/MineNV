@@ -35,7 +35,7 @@ import org.joml.Vector4f;
  * GPU buffers, published when the GPU fence passes (next frame at the latest).
  */
 public final class FrameExporter {
-	public static final String NAME = dev.osl.Sheets.FRAME_SHM;
+	public static final String NAME = System.getProperty("osl.frame", dev.osl.Sheets.FRAME_SHM);
 	private static final int MAGIC = 0x5450434D;
 	private static final int VERSION = 1;
 	private static final int HEADER = 4096;

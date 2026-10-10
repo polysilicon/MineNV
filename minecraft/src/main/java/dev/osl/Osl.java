@@ -14,21 +14,23 @@ import org.slf4j.LoggerFactory;
 public class Osl implements ModInitializer {
 	public static final String ID = "osl";
 	public static final Logger LOG = LoggerFactory.getLogger(ID);
-	/** True while New Vegas is driving the camera. The integrated server shares this JVM, so both sides read it. */
+	/** Client side: true while this player's New Vegas is driving the camera (the server keeps each player's in Courier). */
 	public static volatile boolean active;
-	/** Minecraft mode: Minecraft's physics move the player and New Vegas follows (0.2.0). Both sides read it. */
+	/** Client side: Minecraft mode, Minecraft's physics move the player and New Vegas follows (the server: Courier). */
 	public static volatile boolean takeover;
-	/** Where events for New Vegas go (JSON lines); the client's HostLink sets it. */
+	/** Client side: where events for this player's New Vegas go (JSON lines); the client's HostLink sets it. */
 	public static volatile Consumer<String> events = message -> {};
 
 	@Override
 	public void onInitialize() {
+		Net.register();
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			WorldBridge.attach(server);
 			Economy.attach(server);
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
 			NpcWar.clear();
+			Courier.clear();
 			Economy.detach();
 			WorldBridge.detach();
 		});
@@ -48,6 +50,13 @@ public class Osl implements ModInitializer {
 			}
 		});
 		net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.AFTER_RESPAWN.register((oldP, newP, alive) -> NpcWar.afterRespawn(newP));
+		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+			Courier c = Courier.find(handler.player.getUUID());
+			if (c != null) {
+				NpcWar.clear(c);
+				Courier.remove(c.id);
+			}
+		});
 		LOG.info("Overworld Supply Line loaded");
 	}
 }

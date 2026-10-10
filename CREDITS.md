@@ -9,5 +9,9 @@
 - **Java-WebSocket** (MIT), bundled inside the Minecraft mod: https://github.com/TooTallNate/Java-WebSocket
 - **xNVSE** (installed by Melty) and **JIP LN NVSE**: their sources documented the New Vegas addresses used.
 - **SkyCraft** by chasmlol (MIT): the bundled-Prism approach for Minecraft on Melty.
+- **CyberCraft** by YoGoUrT (MIT): the multiplayer approach (e4mc address in the log, join= in a config file).
+  https://github.com/YoGoUrT20/cybercraft
+- **e4mc** by skyecodes/vgskye (MIT), bundled unmodified: friends join the host's world over the internet.
+  https://github.com/vgskye/e4mc-minecraft-architectury
 
 Fallout: New Vegas is Bethesda's; Minecraft is Mojang's. Neither game's files are included.

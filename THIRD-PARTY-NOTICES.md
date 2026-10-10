@@ -23,6 +23,10 @@ WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEM
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## CyberCraft (MIT)
+Multiplayer approach (the host's e4mc address picked out of chat into the log for Melty, join= in a properties file
+for joiners) adapted from CyberCraft, Copyright (c) 2026 chasmlol, MIT License: https://github.com/YoGoUrT20/cybercraft
+
 ## Addresses and layouts
 New Vegas memory addresses and structure offsets (sheets/hooks.json) were read from the sources of xNVSE
 (https://github.com/xNVSE/NVSE) and JIP LN NVSE (https://github.com/jazzisparis/JIP-LN-NVSE). No code from them is

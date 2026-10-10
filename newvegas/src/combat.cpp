@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
+#include <unordered_map>
 #include "economy.h"
 #include "game.h"
 #include "log.h"
@@ -15,7 +17,8 @@ namespace
 {
 NVSEScriptInterface *g_script = nullptr;
 std::function<void(const std::string &)> g_send;
-Script *g_damage = nullptr, *g_health = nullptr, *g_restore = nullptr, *g_spawn = nullptr;
+Script *g_damage = nullptr, *g_health = nullptr, *g_restore = nullptr, *g_spawn = nullptr, *g_name = nullptr;
+std::unordered_map<UInt32, std::string> g_names;  // refID -> in-game name, JSON-escaped (friends see it over the stand-in)
 DWORD g_lastSend = 0;
 double g_lastHealth = -1.0;
 
@@ -45,6 +48,7 @@ bool Compile()
 	g_spawn = g_script->CompileScript(
 		"Begin Function {ref rBase, float fx, float fy, float fz}\nref rNew = PlaceAtMe rBase 1\n"
 		"rNew.SetPos X fx\nrNew.SetPos Y fy\nrNew.SetPos Z fz\nEnd");
+	g_name = g_script->CompileScript("Begin Function {ref rActor}\nSetFunctionValue (rActor.GetName)\nEnd");
 	logf("combat: scripts %s", g_damage && g_health && g_restore && g_spawn ? "compiled" : "FAILED to compile");
 	return g_damage != nullptr;
 }
@@ -54,7 +58,29 @@ uintptr_t Ptr(uintptr_t a)
 	return a ? *reinterpret_cast<uintptr_t *>(a) : 0;
 }
 
-/// {"t":"npcs","a":[[ref,x,y,z],...]}: New Vegas's living actors near the Courier, feet, in blocks.
+/// The actor's name for the JSON list (cached; empty when New Vegas doesn't say).
+const std::string &Name(UInt32 ref, TESForm *actor)
+{
+	auto it = g_names.find(ref);
+	if (it != g_names.end())
+		return it->second;
+	if (g_names.size() > 512)
+		g_names.clear();
+	std::string out;
+	NVSEElement r{};
+	if (g_name && g_script->CallFunction(g_name, Player(), nullptr, &r, 1, actor) && r.type == 3 && r.str)
+		for (const char *c = r.str; *c && out.size() < 60; c++)
+		{
+			unsigned char u = static_cast<unsigned char>(*c);
+			if (u == '"' || u == '\\')
+				out += '\\', out += char(u);
+			else if (u >= 0x20 && u < 0x7F)
+				out += char(u);
+		}
+	return g_names.emplace(ref, out).first->second;
+}
+
+/// {"t":"npcs","a":[[ref,x,y,z,"name"],...]}: New Vegas's living actors near the Courier, feet, in blocks.
 void SendActors()
 {
 	game::Vec3 me;
@@ -79,8 +105,10 @@ void SendActors()
 			continue;
 		UInt32 ref = *reinterpret_cast<UInt32 *>(actor + sheets::ADDR_FORM_REFID);
 		char e[96];
-		std::snprintf(e, sizeof e, "%s[%u,%.3f,%.3f,%.3f]", n ? "," : "", ref, p[0] / u, p[2] / u + sheets::Y_OFFSET, -p[1] / u);
+		std::snprintf(e, sizeof e, "%s[%u,%.3f,%.3f,%.3f,\"", n ? "," : "", ref, p[0] / u, p[2] / u + sheets::Y_OFFSET, -p[1] / u);
 		list += e;
+		list += Name(ref, reinterpret_cast<TESForm *>(actor));
+		list += "\"]";
 		n++;
 	}
 	g_send("{\"t\":\"npcs\",\"a\":[" + list + "]}");

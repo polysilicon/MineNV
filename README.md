@@ -23,8 +23,13 @@ New Vegas, so Minecraft blocks stand in the Mojave and New Vegas's own ground, r
   and They Went That-a-Way lands a Fallout-themed chest next to you, once per world.
 - **A starter kit:** a crafting table, planks, torches and wooden tools in your Minecraft inventory on the first
   start.
-- **Single player.** Each New Vegas worldspace (the Mojave, the Strip, Freeside...) has its own part of the
-  Minecraft world, and your builds are saved in your Minecraft world.
+- **Multiplayer (up to 8):** press Play to host, and friends join from Melty. Everyone shares one Minecraft Mojave
+  laid over the same map: you see each other's Steve and builds where they really are, build and fight together.
+  Each player runs their own New Vegas, so quests, caps, perks and quest chests stay their own. New Vegas NPCs near
+  you appear to your friends as named villager stand-ins they can fight (hits reach the real NPC in your game);
+  you see the real NPC. Friends play without commands; the host keeps theirs.
+- **Worldspaces:** each New Vegas worldspace (the Mojave, the Strip, Freeside...) has its own part of the
+  Minecraft world, and builds are saved in the host's Minecraft world.
 
 ## Playing
 Install it from Melty and press Play. You need Fallout: New Vegas (1.4.0.525, Steam or GOG) and a Microsoft account
@@ -47,6 +52,11 @@ the rows for all three parts:
   quests, applies perks, and draws Minecraft's frame into New Vegas's picture with Direct3D 9.
 - `launcher/` (Go): `osl-launch.exe`. It finds the sheets' items and quests in your own `FalloutNV.esm`, starts the
   bundled Minecraft, then starts New Vegas through xNVSE.
+
+Multiplayer: each player's Minecraft relays their own New Vegas's messages to the world over the game connection
+(`osl:nv` / `osl:ev` payloads, `Net.java`); the server keeps one `Courier` per player. The host's world opens to LAN
+on load and e4mc (bundled) gives it an internet address, logged as "this world is open to friends at ..." for Melty;
+joiners get `join=` in `config/mojavecraft.properties`.
 
 Tests: `cd minecraft && ./gradlew test` (build detection), `python3 tools/fake_newvegas.py` against
 `./gradlew runClient` (the whole link and the frame layout, 18 checks), `cd launcher && go test`,

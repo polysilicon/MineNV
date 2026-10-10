@@ -1,16 +1,10 @@
 package dev.osl.client;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import dev.osl.Economy;
 import dev.osl.Osl;
 import dev.osl.Sheets;
-import dev.osl.Space;
-import dev.osl.WorldBridge;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import org.java_websocket.WebSocket;
@@ -65,7 +59,7 @@ public final class HostLink extends WebSocketServer {
 		lastSeenNanos = System.nanoTime();
 		conn.send(String.format(Locale.ROOT, "{\"t\":\"hello\",\"v\":1,\"shm\":\"%s\",\"pid\":%d}",
 			FrameExporter.NAME.replace("\\", "\\\\"), ProcessHandle.current().pid()));
-		Economy.reportPerks();
+		Relay.toWorld("{\"t\":\"hello\"}");
 	}
 
 	@Override
@@ -92,36 +86,8 @@ public final class HostLink extends WebSocketServer {
 					Minecraft minecraft = Minecraft.getInstance();
 					minecraft.execute(() -> ClientInput.takeover(minecraft, m));
 				}
-				case "ground" -> WorldBridge.solid(columns(m.getAsJsonArray("c")));
-				case "clear" -> WorldBridge.clearSolid();
-				case "blocksync" -> WorldBridge.sync(m.has("r") ? m.get("r").getAsInt() : 32);
-				case "give" -> Economy.give(stacks(m.getAsJsonArray("items")), m.has("why") ? m.get("why").getAsString() : "");
-				case "quest" -> Economy.questDone(m.get("id").getAsString());
-				case "say" -> Economy.say(m.get("text").getAsString());
-				case "npcs" -> {
-					JsonArray list = m.getAsJsonArray("a");
-					double[] flat = new double[list.size() * 4];
-					for (int i = 0; i < list.size(); i++) {
-						JsonArray e = list.get(i).getAsJsonArray();
-						for (int k = 0; k < 4; k++) {
-							flat[i * 4 + k] = e.get(k).getAsDouble();
-						}
-					}
-
-					dev.osl.NpcWar.npcs(flat);
-				}
-				case "hurt" -> dev.osl.NpcWar.hurt(m.get("d").getAsDouble());
-				case "devreset" -> {
-					if (Boolean.getBoolean("osl.allowCommands")) {
-						Economy.resetForTest();
-					}
-				}
-				case "cmd" -> {
-					// development only (tests and the fake host): disabled unless -Dosl.allowCommands=true
-					if (Boolean.getBoolean("osl.allowCommands")) {
-						WorldBridge.command(m.get("c").getAsString());
-					}
-				}
+				// for the world (ours or a friend's): it keeps each player's ground, rewards and NPC stand-ins
+				case "ground", "clear", "blocksync", "give", "quest", "say", "npcs", "hurt", "devreset", "cmd" -> Relay.toWorld(message);
 				default -> {
 					Minecraft minecraft = Minecraft.getInstance();
 					minecraft.execute(() -> ClientInput.handle(minecraft, m));
@@ -135,32 +101,5 @@ public final class HostLink extends WebSocketServer {
 	@Override
 	public void onError(final WebSocket conn, final Exception e) {
 		Osl.LOG.warn("link error", e);
-	}
-
-	/** Ground columns arrive in the worldspace's own coordinates: shift x into its strip. */
-	private static int[] columns(final JsonArray a) {
-		int[] out = new int[a.size()];
-		int dx = Space.offsetX();
-		for (int i = 0; i < out.length; i++) {
-			out[i] = a.get(i).getAsInt() + (i % 4 == 0 ? dx : 0);
-		}
-
-		return out;
-	}
-
-	private static List<Sheets.Stack> stacks(final JsonArray a) {
-		List<Sheets.Stack> out = new ArrayList<>();
-		for (int i = 0; i < a.size(); i++) {
-			JsonArray e = a.get(i).getAsJsonArray();
-			String item = e.get(0).getAsString();
-			// only plain item ids and the component syntax the sheets use; never a command
-			if (!item.matches("[a-z0-9_:.\\-/]+(\\[[^\\]\\n]*\\])?")) {
-				throw new IllegalArgumentException("bad item " + item);
-			}
-
-			out.add(new Sheets.Stack(item, Math.clamp(e.get(1).getAsInt(), 1, 64 * 36)));
-		}
-
-		return out;
 	}
 }

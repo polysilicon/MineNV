@@ -17,7 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class PlayerMixin {
 	@Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;noPhysics:Z", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void osl$ghost(final CallbackInfo ci) {
-		if (Osl.active && !Osl.takeover) {
+		Player self = (Player) (Object) this;
+		boolean ghost;
+		if (self instanceof net.minecraft.server.level.ServerPlayer sp) {
+			dev.osl.Courier c = dev.osl.Courier.find(sp.getUUID());
+			ghost = c != null && c.active() && !c.takeover();
+		} else {
+			// client: only this player's own Steve follows their New Vegas
+			ghost = self.isLocalPlayer() && Osl.active && !Osl.takeover;
+		}
+
+		if (ghost) {
 			((Entity) (Object) this).noPhysics = true;
 		}
 	}

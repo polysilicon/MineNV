@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.UUID;
+import com.google.gson.JsonArray;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
@@ -39,55 +39,67 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Minecraft vs New Vegas's people. New Vegas lists its living actors near the Courier ("npcs"); each gets an
- * invisible, AI-less villager stand-in here that follows it. Steve, his arrows and Minecraft's hostile mobs can hit
- * the stand-ins, and every hit goes to the real NPC ("npchit"). New Vegas damage to the Courier comes back as damage
- * to Steve ("hurt"). New Vegas spawn eggs (npc_eggs.json) place real New Vegas NPCs ("spawnnpc").
- * Based on universal-modder's MobWar (MIT).
+ * Minecraft vs New Vegas's people. Each player's New Vegas lists its living actors near their Courier ("npcs");
+ * each gets an AI-less villager stand-in here that follows it, named after the NPC. Its owner's Minecraft hides it
+ * (their New Vegas draws the real NPC there); everyone else sees the stand-in. Steve, his friends, arrows and
+ * Minecraft's hostile mobs can hit the stand-ins, and every hit goes to the real NPC in its owner's New Vegas
+ * ("npchit"). New Vegas damage to a Courier comes back as damage to that player's Steve ("hurt"). New Vegas spawn
+ * eggs (npc_eggs.json) place real NPCs in the user's New Vegas ("spawnnpc"). Based on universal-modder's MobWar (MIT).
  */
 public final class NpcWar {
 	public static final String PROXY_TAG = "nv_npc";
 	public static final String EGG_KEY = "osl_npc";
 	private static final double FOLLOW_RANGE = 48.0;
+	private static final int MAX_PER_PLAYER = 64;
 	/** Brain-driven hostiles pick targets from memories, not goals: they don't join. */
 	private static final java.util.Set<String> BRAIN_MOBS = java.util.Set.of("piglin", "piglin_brute", "hoglin", "zoglin", "breeze", "creaking", "warden");
+	/** Client side: entity ids of this player's own stand-ins ("mine" from the world), hidden in their picture. */
+	public static final java.util.Set<Integer> HIDDEN = java.util.concurrent.ConcurrentHashMap.newKeySet();
 
-	private static final AtomicReference<double[]> npcs = new AtomicReference<>();
-	private static volatile long npcsNanos;
-	private static final ConcurrentLinkedQueue<Double> hurts = new ConcurrentLinkedQueue<>();
+	/** One New Vegas NPC's stand-in. */
+	private record Proxy(UUID owner, long ref, Villager entity) {
+	}
+
+	/** One player's latest actor list, kept until the next server tick. */
+	private record Seen(JsonArray list, long nanos) {
+	}
 
 	// server thread only
-	private static final Map<Long, Villager> proxies = new HashMap<>();
-	private static final Map<Integer, Long> refOf = new HashMap<>();
-	private static final Map<Long, Integer> missing = new HashMap<>();
-	private static final Map<java.util.UUID, Vec3> deathSpot = new HashMap<>();
-	private static final Map<java.util.UUID, Long> lastEgg = new HashMap<>();
+	private static final Map<UUID, Seen> seen = new HashMap<>();
+	private static final Map<UUID, Long> lastSeen = new HashMap<>();
+	private static final Map<UUID, Map<Long, Proxy>> proxies = new HashMap<>();
+	private static final Map<Integer, Proxy> byEntity = new HashMap<>();
+	private static final Map<UUID, Map<Long, Integer>> missing = new HashMap<>();
+	private static final Map<UUID, java.util.List<Double>> hurts = new HashMap<>();
+	private static final Map<UUID, Vec3> deathSpot = new HashMap<>();
+	private static final Map<UUID, Long> lastEgg = new HashMap<>();
 
 	private NpcWar() {
 	}
 
+	/** Both sides: stand-ins are AI-less floating villagers (that much is synced to every client), tagged on the server. */
 	public static boolean isProxy(final Entity e) {
-		return e instanceof Villager && (e.isInvisible() || e.entityTags().contains(PROXY_TAG));
+		return e instanceof Villager v && v.isNoAi() && v.isNoGravity() && (v.level().isClientSide() || v.entityTags().contains(PROXY_TAG));
 	}
 
 	private static boolean fighter(final Entity e) {
 		return e instanceof Mob && e instanceof Enemy && !isProxy(e) && !BRAIN_MOBS.contains(BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).getPath());
 	}
 
-	/** {"t":"npcs","a":[[ref,x,y,z],...]} flattened (link thread). */
-	public static void npcs(final double[] flat) {
-		npcs.set(flat);
-		npcsNanos = System.nanoTime();
+	/** {"t":"npcs","a":[[ref,x,y,z,"name"?],...]} from a player's New Vegas (worldspace coordinates, feet, blocks). */
+	static void npcs(final Courier c, final JsonArray list) {
+		seen.put(c.id, new Seen(list, System.nanoTime()));
+		lastSeen.put(c.id, System.nanoTime());
 	}
 
-	/** {"t":"hurt","d":newVegasDamage} (link thread). */
-	public static void hurt(final double newVegasDamage) {
-		hurts.add(newVegasDamage);
+	/** {"t":"hurt","d":newVegasDamage}: New Vegas hurt this player's Courier. */
+	static void hurt(final Courier c, final double newVegasDamage) {
+		hurts.computeIfAbsent(c.id, k -> new java.util.ArrayList<>()).add(newVegasDamage);
 	}
 
 	/** New hostile mobs hunt stand-ins; stand-ins left over from an earlier session go. */
 	public static void onEntityLoad(final Entity e, final ServerLevel level) {
-		if (e instanceof Villager v && v.entityTags().contains(PROXY_TAG) && !proxies.containsValue(v)) {
+		if (e instanceof Villager v && v.entityTags().contains(PROXY_TAG) && !byEntity.containsKey(v.getId())) {
 			v.discard();
 			return;
 		}
@@ -110,10 +122,10 @@ public final class NpcWar {
 
 	/** A stand-in was hit (server thread; the stand-in itself takes nothing). */
 	public static void onProxyHit(final LivingEntity proxy, final DamageSource source, final float amount) {
-		Long ref = refOf.get(proxy.getId());
+		Proxy p = byEntity.get(proxy.getId());
 		Entity attacker = source.getEntity();
 		// only blows from someone count: /kill, walls and falls don't reach New Vegas's people
-		if (ref == null || attacker == null || amount <= 0.0F || !Float.isFinite(amount)) {
+		if (p == null || attacker == null || amount <= 0.0F || !Float.isFinite(amount)) {
 			return;
 		}
 
@@ -121,91 +133,143 @@ public final class NpcWar {
 			projectile.discard(); // the arrow ends in the NPC it hit
 		}
 
-		String by = attacker instanceof Player ? "player" : BuiltInRegistries.ENTITY_TYPE.getKey(attacker.getType()).getPath();
-		Osl.events.accept(String.format(Locale.ROOT, "{\"t\":\"npchit\",\"id\":%d,\"d\":%.2f,\"by\":\"%s\"}", ref, Math.min(amount, 100.0F), by));
+		Courier owner = Courier.find(p.owner());
+		if (owner == null) {
+			return;
+		}
+
+		// "player": the NPC's own Courier hit it (it turns on them); a friend's Steve counts like a Minecraft mob
+		String by = attacker instanceof Player ? (attacker.getUUID().equals(p.owner()) ? "player" : "friend")
+			: BuiltInRegistries.ENTITY_TYPE.getKey(attacker.getType()).getPath();
+		owner.send(proxy.level().getServer(), String.format(Locale.ROOT, "{\"t\":\"npchit\",\"id\":%d,\"d\":%.2f,\"by\":\"%s\"}",
+			p.ref(), Math.min(amount, 100.0F), by));
 	}
 
 	static void tick(final MinecraftServer s) {
 		ServerLevel level = s.overworld();
-		syncProxies(level);
-		for (Double d; (d = hurts.poll()) != null;) {
-			for (ServerPlayer p : s.getPlayerList().getPlayers()) {
-				if (p.isAlive() && !p.isCreative() && !p.isSpectator()) {
+		for (Courier c : Courier.all()) {
+			syncProxies(s, level, c);
+		}
+
+		for (Map.Entry<UUID, java.util.List<Double>> e : hurts.entrySet()) {
+			ServerPlayer p = s.getPlayerList().getPlayer(e.getKey());
+			for (double d : e.getValue()) {
+				if (p != null && p.isAlive() && !p.isCreative() && !p.isSpectator()) {
 					p.hurtServer(level, level.damageSources().generic(), (float) (d * Sheets.NV_TO_MC_DAMAGE));
 				}
 			}
 		}
+
+		hurts.clear();
 	}
 
-	private static void syncProxies(final ServerLevel level) {
-		if (!Osl.takeover || System.nanoTime() - npcsNanos > 1_500_000_000L) {
-			if (!proxies.isEmpty()) {
-				clear();
-			}
-
-			npcs.set(null);
+	private static void syncProxies(final MinecraftServer s, final ServerLevel level, final Courier c) {
+		Long last = lastSeen.get(c.id);
+		if (!c.takeover || last == null || System.nanoTime() - last > 1_500_000_000L || c.player(s) == null) {
+			clear(c);
+			seen.remove(c.id);
 			return;
 		}
 
-		double[] p = npcs.getAndSet(null);
-		if (p == null) {
+		Seen now = seen.remove(c.id);
+		if (now == null) {
 			return;
 		}
 
-		java.util.Set<Long> seen = new java.util.HashSet<>();
-		int dx = Space.offsetX();
-		for (int i = 0; i + 3 < p.length; i += 4) {
-			long ref = (long) p[i];
-			double x = p[i + 1] + dx, y = p[i + 2], z = p[i + 3];
-			seen.add(ref);
-			Villager v = proxies.get(ref);
-			if (v == null || v.isRemoved()) {
-				v = EntityTypes.VILLAGER.create(level, EntitySpawnReason.COMMAND);
-				if (v == null) {
-					continue;
-				}
-
-				v.setInvisible(true);
-				v.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, false, false), null);
-				v.setNoAi(true);
-				v.setNoGravity(true);
-				v.setSilent(true);
-				v.addTag(PROXY_TAG);
-				v.snapTo(x, y, z, 0.0F, 0.0F);
-				proxies.put(ref, v); // before adding: the load event mustn't take it for a stale one
-				if (!level.addFreshEntity(v)) {
-					proxies.remove(ref);
-					continue;
-				}
-
-				refOf.put(v.getId(), ref);
-			} else {
-				v.setPos(x, y, z);
-			}
-
-			missing.remove(ref);
-		}
-
-		for (Iterator<Map.Entry<Long, Villager>> it = proxies.entrySet().iterator(); it.hasNext();) {
-			Map.Entry<Long, Villager> e = it.next();
-			if (seen.contains(e.getKey())) {
+		Map<Long, Proxy> mine = proxies.computeIfAbsent(c.id, k -> new HashMap<>());
+		Map<Long, Integer> gone = missing.computeIfAbsent(c.id, k -> new HashMap<>());
+		java.util.Set<Long> here = new java.util.HashSet<>();
+		boolean changed = false;
+		for (int i = 0; i < now.list().size() && i < MAX_PER_PLAYER; i++) {
+			JsonArray a = now.list().get(i).getAsJsonArray();
+			long ref = a.get(0).getAsLong();
+			double x = a.get(1).getAsDouble() + c.offsetX, y = a.get(2).getAsDouble(), z = a.get(3).getAsDouble();
+			String name = a.size() > 4 && !a.get(4).isJsonNull() ? a.get(4).getAsString() : "";
+			here.add(ref);
+			gone.remove(ref);
+			Proxy p = mine.get(ref);
+			if (p != null && !p.entity().isRemoved()) {
+				p.entity().setPos(x, y, z);
 				continue;
 			}
 
-			if (missing.merge(e.getKey(), 1, Integer::sum) > 3 || e.getValue().isRemoved()) {
-				refOf.remove(e.getValue().getId());
-				e.getValue().discard();
-				missing.remove(e.getKey());
-				it.remove();
+			Villager v = EntityTypes.VILLAGER.create(level, EntitySpawnReason.COMMAND);
+			if (v == null) {
+				continue;
 			}
+
+			v.setNoAi(true);
+			v.setNoGravity(true);
+			v.setSilent(true);
+			v.addTag(PROXY_TAG);
+			if (!name.isBlank()) {
+				v.setCustomName(Component.literal(name.length() > 40 ? name.substring(0, 40) : name));
+				v.setCustomNameVisible(true);
+			}
+
+			v.snapTo(x, y, z, 0.0F, 0.0F);
+			p = new Proxy(c.id, ref, v);
+			byEntity.put(v.getId(), p); // before adding: the load event mustn't take it for a stale one
+			if (!level.addFreshEntity(v)) {
+				byEntity.remove(v.getId());
+				continue;
+			}
+
+			mine.put(ref, p);
+			changed = true;
+		}
+
+		for (Iterator<Map.Entry<Long, Proxy>> it = mine.entrySet().iterator(); it.hasNext();) {
+			Map.Entry<Long, Proxy> e = it.next();
+			if (here.contains(e.getKey()) && !e.getValue().entity().isRemoved()) {
+				continue;
+			}
+
+			if (gone.merge(e.getKey(), 1, Integer::sum) > 3 || e.getValue().entity().isRemoved()) {
+				byEntity.remove(e.getValue().entity().getId());
+				e.getValue().entity().discard();
+				gone.remove(e.getKey());
+				it.remove();
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			sendMine(s, c, mine);
+		}
+	}
+
+	/** {"t":"mine","ids":[...]}: the owner's Minecraft hides its own stand-ins (their New Vegas draws the NPCs). */
+	private static void sendMine(final MinecraftServer s, final Courier c, final Map<Long, Proxy> mine) {
+		StringBuilder ids = new StringBuilder();
+		for (Proxy p : mine.values()) {
+			ids.append(ids.isEmpty() ? "" : ",").append(p.entity().getId());
+		}
+
+		c.send(s, "{\"t\":\"mine\",\"ids\":[" + ids + "]}");
+	}
+
+	/** This player's stand-ins go (Minecraft mode off, their New Vegas quiet, or they left). */
+	static void clear(final Courier c) {
+		Map<Long, Proxy> mine = proxies.remove(c.id);
+		missing.remove(c.id);
+		if (mine == null) {
+			return;
+		}
+
+		for (Proxy p : mine.values()) {
+			byEntity.remove(p.entity().getId());
+			p.entity().discard();
 		}
 	}
 
 	static void clear() {
-		proxies.values().forEach(Entity::discard);
+		Courier.all().forEach(NpcWar::clear);
 		proxies.clear();
-		refOf.clear();
-		missing.clear();
+		byEntity.clear();
+		seen.clear();
+		lastSeen.clear();
+		hurts.clear();
 	}
 
 	// ---- spawn eggs ----
@@ -261,8 +325,9 @@ public final class NpcWar {
 			return InteractionResult.PASS;
 		}
 
-		if (!level.isClientSide()) {
-			if (!Osl.takeover) {
+		if (!level.isClientSide() && player instanceof ServerPlayer sp) {
+			Courier c = Courier.of(sp);
+			if (!c.takeover) {
 				player.sendSystemMessage(Component.literal("\u00a76[Mojave]\u00a7r New Vegas spawn eggs work in Minecraft mode."));
 				return InteractionResult.SUCCESS;
 			}
@@ -274,8 +339,8 @@ public final class NpcWar {
 				return InteractionResult.SUCCESS;
 			}
 
-			Osl.events.accept(String.format(Locale.ROOT, "{\"t\":\"spawnnpc\",\"kind\":\"%s\",\"p\":[%.3f,%.3f,%.3f]}",
-				kind, at.x - Space.offsetX(), at.y, at.z));
+			c.send(sp.level().getServer(), String.format(Locale.ROOT, "{\"t\":\"spawnnpc\",\"kind\":\"%s\",\"p\":[%.3f,%.3f,%.3f]}",
+				kind, at.x - c.offsetX, at.y, at.z));
 			if (!player.getAbilities().instabuild) {
 				stack.shrink(1);
 			}
@@ -327,7 +392,8 @@ public final class NpcWar {
 
 	static void afterRespawn(final ServerPlayer player) {
 		Vec3 at = deathSpot.remove(player.getUUID());
-		if (at != null && Osl.takeover) {
+		Courier c = Courier.find(player.getUUID());
+		if (at != null && c != null && c.takeover) {
 			WorldBridge.command(String.format(Locale.ROOT, "tp %s %.3f %.3f %.3f", player.getStringUUID(), at.x, at.y + 0.5, at.z));
 		}
 	}

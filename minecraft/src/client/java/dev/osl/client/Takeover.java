@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.osl.Osl;
 import dev.osl.Space;
-import dev.osl.WorldBridge;
 import java.util.Locale;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -34,6 +33,7 @@ public final class Takeover {
 		Osl.takeover = on;
 		LocalPlayer player = minecraft.player;
 		if (!on) {
+			Relay.toWorld("{\"t\":\"takeover\",\"on\":false}");
 			InputBridge.releaseAll(minecraft);
 			Osl.LOG.info("Minecraft mode off: New Vegas controls the Courier");
 			return;
@@ -48,26 +48,17 @@ public final class Takeover {
 			JsonArray f = m.getAsJsonArray("feet");
 			double x = f.get(0).getAsDouble() + Space.offsetX(), y = f.get(1).getAsDouble(), z = f.get(2).getAsDouble();
 			float yaw = m.has("yaw") ? m.get("yaw").getAsFloat() : player.getYRot();
-			// on the server too, so its idea of the player matches; Minecraft physics take it from there
 			player.getAbilities().flying = false;
 			player.getAbilities().mayfly = false;
 			player.onUpdateAbilities();
 			player.setPos(x, y + 0.05, z);
 			player.setYRot(yaw);
 			player.setDeltaMovement(Vec3.ZERO);
-			WorldBridge.command(String.format(Locale.ROOT, "tp %s %.3f %.3f %.3f %.2f 0", player.getStringUUID(), x, y + 0.05, z, yaw));
-			var server = minecraft.getSingleplayerServer();
-			var uuid = player.getUUID();
-			if (server != null) {
-				server.execute(() -> {
-					var sp = server.getPlayerList().getPlayer(uuid);
-					if (sp != null) {
-						sp.getAbilities().flying = false;
-						sp.getAbilities().mayfly = false;
-						sp.onUpdateAbilities();
-					}
-				});
-			}
+			// the world (ours or a friend's) puts Steve there too, in this worldspace's strip
+			Relay.toWorld(String.format(Locale.ROOT, "{\"t\":\"takeover\",\"on\":true,\"feet\":[%.3f,%.3f,%.3f],\"yaw\":%.2f}",
+				f.get(0).getAsDouble(), y, z, yaw));
+		} else {
+			Relay.toWorld("{\"t\":\"takeover\",\"on\":true}");
 		}
 
 		if (minecraft.gui.screen() == null) {

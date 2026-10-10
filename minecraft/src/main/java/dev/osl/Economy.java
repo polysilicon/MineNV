@@ -23,11 +23,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
 
 /**
- * The supply line, Minecraft's half (server thread):
+ * The supply line, Minecraft's half (server thread), for each player and their own New Vegas:
  * - New Vegas junk arrives as items ("give", from the Salvage key),
- * - finished New Vegas quests drop a chest beside the player, once per world ("quest"),
- * - builds found around the player unlock Courier perks, reported to New Vegas ("perks").
- * State lives in the world folder as osl_state.json.
+ * - finished New Vegas quests drop a chest beside the player, once per player ("quest"),
+ * - builds found around the player unlock Courier perks, reported to their New Vegas ("perks").
+ * State lives in the world folder as osl_state.json: worldspace strips are the world's, rewards each player's.
  */
 public final class Economy {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -39,6 +39,15 @@ public final class Economy {
 	/** What the world remembers. */
 	static final class State {
 		Map<String, Integer> slots = new LinkedHashMap<>();
+		Map<String, Rewards> players = new LinkedHashMap<>();
+		// before 0.4.0 (one player): moved to the first player who plays the world, its owner
+		Set<String> quests;
+		Set<String> builds;
+		Boolean starter;
+	}
+
+	/** One player's rewards. */
+	static final class Rewards {
 		Set<String> quests = new LinkedHashSet<>();
 		Set<String> builds = new LinkedHashSet<>();
 		boolean starter;
@@ -62,7 +71,15 @@ public final class Economy {
 			}
 		}
 
-		Osl.LOG.info("economy: {} worldspaces, quests {}, builds {}", state.slots.size(), state.quests, state.builds);
+		if (state.slots == null) {
+			state.slots = new LinkedHashMap<>();
+		}
+
+		if (state.players == null) {
+			state.players = new LinkedHashMap<>();
+		}
+
+		Osl.LOG.info("economy: {} worldspaces, {} players", state.slots.size(), state.players.size());
 	}
 
 	static void detach() {
@@ -82,30 +99,62 @@ public final class Economy {
 		}
 	}
 
-	private static ServerPlayer player(final MinecraftServer s) {
-		List<ServerPlayer> players = s.getPlayerList().getPlayers();
-		return players.isEmpty() ? null : players.get(0);
+	private static Rewards rewards(final Courier c) {
+		Rewards r = state.players.get(c.id.toString());
+		if (r == null) {
+			r = new Rewards();
+			if (state.quests != null || state.builds != null || state.starter != null) {
+				// a world from before multiplayer: its rewards were its owner's, the first to play it now
+				if (state.quests != null) {
+					r.quests.addAll(state.quests);
+				}
+
+				if (state.builds != null) {
+					r.builds.addAll(state.builds);
+				}
+
+				r.starter = Boolean.TRUE.equals(state.starter);
+				state.quests = null;
+				state.builds = null;
+				state.starter = null;
+			}
+
+			state.players.put(c.id.toString(), r);
+			save();
+		}
+
+		return r;
 	}
 
-	/** Every server tick: the starter kit once, and the build scan every PERK_SYNC_SECONDS. */
+	/** Every server tick: each player's starter kit once, and the build scan every PERK_SYNC_SECONDS. */
 	static void tick(final MinecraftServer s) {
-		ServerPlayer player = player(s);
-		if (player == null || state == null) {
+		if (state == null) {
 			return;
 		}
 
-		if (!state.starter) {
-			state.starter = true;
-			Sheets.Chest kit = Sheets.CHESTS.get(Sheets.STARTER_CHEST);
-			kit.items().forEach(item -> give(s, player, item));
-			save();
-			toast(kit.name() + " is in your Minecraft inventory.");
-		}
+		boolean scan = ++tickCounter % (Sheets.PERK_SYNC_SECONDS * 20) == 0;
+		for (ServerPlayer player : s.getPlayerList().getPlayers()) {
+			Courier c = Courier.find(player.getUUID());
+			if (c == null) {
+				continue; // not a Mojavecraft player (or their Minecraft hasn't spoken yet)
+			}
 
-		if (++tickCounter % (Sheets.PERK_SYNC_SECONDS * 20) != 0 || !Osl.active) {
-			return;
-		}
+			Rewards r = rewards(c);
+			if (!r.starter) {
+				r.starter = true;
+				Sheets.Chest kit = Sheets.CHESTS.get(Sheets.STARTER_CHEST);
+				kit.items().forEach(item -> give(player, item));
+				save();
+				toast(s, c, kit.name() + " is in your Minecraft inventory.");
+			}
 
+			if (scan && c.active) {
+				scanBuilds(s, player, c, r);
+			}
+		}
+	}
+
+	private static void scanBuilds(final MinecraftServer s, final ServerPlayer player, final Courier c, final Rewards r) {
 		ServerLevel level = s.overworld();
 		BlockPos at = player.blockPosition();
 		BuildDetector.BlockView view = (x, y, z) -> {
@@ -114,128 +163,109 @@ public final class Economy {
 		};
 		boolean changed = false;
 		for (Sheets.Build build : Sheets.BUILDS) {
-			if (!state.builds.contains(build.id()) && BuildDetector.found(build, view, at.getX(), at.getY(), at.getZ())) {
-				state.builds.add(build.id());
+			if (!r.builds.contains(build.id()) && BuildDetector.found(build, view, at.getX(), at.getY(), at.getZ())) {
+				r.builds.add(build.id());
 				changed = true;
 				Sheets.Perk perk = Sheets.PERKS.get(build.perk());
-				Osl.LOG.info("build found: {} -> perk {}", build.id(), perk.id());
-				toast("You built " + build.name() + ": " + perk.name() + " unlocked.");
+				Osl.LOG.info("build found by {}: {} -> perk {}", player.getPlainTextName(), build.id(), perk.id());
+				toast(s, c, "You built " + build.name() + ": " + perk.name() + " unlocked.");
 			}
 		}
 
 		if (changed) {
 			save();
-			reportPerks();
+			reportPerks(s, c);
 		}
 	}
 
-	/** {"t":"perks","on":[...]}: every perk the world's builds have unlocked (New Vegas applies what's new). */
-	public static void reportPerks() {
-		State st = state;
-		if (st == null) {
+	/** {"t":"perks","on":[...]}: every perk this player's builds have unlocked (their New Vegas applies what's new). */
+	static void reportPerks(final MinecraftServer s, final Courier c) {
+		if (state == null) {
 			return;
 		}
 
+		Rewards r = rewards(c);
 		JsonArray on = new JsonArray();
 		for (Sheets.Build build : Sheets.BUILDS) {
-			if (st.builds.contains(build.id())) {
+			if (r.builds.contains(build.id())) {
 				on.add(build.perk());
 			}
 		}
 
-		Osl.events.accept("{\"t\":\"perks\",\"on\":" + on + "}");
+		c.send(s, "{\"t\":\"perks\",\"on\":" + on + "}");
 	}
 
-	static void toast(final String text) {
-		MinecraftServer s = server;
-		if (s != null && Osl.takeover) {
-			s.execute(() -> s.getPlayerList().getPlayers().forEach(p -> p.sendSystemMessage(net.minecraft.network.chat.Component.literal("\u00a76[Mojave]\u00a7r " + text))));
+	static void toast(final MinecraftServer s, final Courier c, final String text) {
+		ServerPlayer p = c.player(s);
+		if (p != null && c.takeover) {
+			p.sendSystemMessage(net.minecraft.network.chat.Component.literal("\u00a76[Mojave]\u00a7r " + text));
 		}
 
 		JsonArray a = new JsonArray();
 		a.add(text);
 		String quoted = a.toString();
-		Osl.events.accept("{\"t\":\"toast\",\"text\":" + quoted.substring(1, quoted.length() - 1) + "}");
+		c.send(s, "{\"t\":\"toast\",\"text\":" + quoted.substring(1, quoted.length() - 1) + "}");
 	}
 
-	/** {"t":"say","text":...}: a line from New Vegas for the chat (its HUD is hidden in Minecraft mode). */
-	public static void say(final String text) {
-		MinecraftServer s = server;
-		if (s != null) {
-			s.execute(() -> s.getPlayerList().getPlayers().forEach(p -> p.sendSystemMessage(net.minecraft.network.chat.Component.literal("\u00a76[Mojave]\u00a7r " + text))));
-		}
+	/** {"t":"say","text":...}: a line from their New Vegas for their chat (its HUD is hidden in Minecraft mode). */
+	static void say(final ServerPlayer player, final String text) {
+		player.sendSystemMessage(net.minecraft.network.chat.Component.literal("\u00a76[Mojave]\u00a7r " + text));
 	}
 
-	/** The worldspace New Vegas is in: its strip of the Minecraft world (assigned on first visit). */
-	public static void worldspace(final int formId) {
-		State st = state;
-		if (st == null) {
+	/** The worldspace their New Vegas is in: its strip of the Minecraft world (assigned on first visit, the same for everyone). */
+	static void worldspace(final MinecraftServer s, final Courier c, final int formId) {
+		if (state == null) {
 			return;
 		}
 
 		String key = Integer.toHexString(formId);
-		Integer slot = st.slots.get(key);
+		Integer slot = state.slots.get(key);
 		if (slot == null) {
-			slot = st.slots.size();
-			st.slots.put(key, slot);
-			MinecraftServer s = server;
-			if (s != null) {
-				s.execute(Economy::save);
-			}
+			slot = state.slots.size();
+			state.slots.put(key, slot);
+			save();
 		}
 
-		Space.setSlot(slot);
+		c.worldspace = formId;
+		c.offsetX = slot * Sheets.WORLDSPACE_SPACING;
+		c.sendSpace(s);
 	}
 
 	/** {"t":"give","items":[[item,count],...],"why":"..."} from the Salvage key. */
-	public static void give(final List<Sheets.Stack> items, final String why) {
-		MinecraftServer s = server;
-		if (s == null) {
-			return;
+	static void give(final MinecraftServer s, final ServerPlayer player, final Courier c, final List<Sheets.Stack> items, final String why) {
+		items.forEach(item -> give(player, item));
+		if (!why.isEmpty()) {
+			toast(s, c, why);
 		}
-
-		s.execute(() -> {
-			ServerPlayer player = player(s);
-			if (player == null) {
-				return;
-			}
-
-			items.forEach(item -> give(s, player, item));
-			if (!why.isEmpty()) {
-				toast(why);
-			}
-		});
 	}
 
-	private static void give(final MinecraftServer s, final ServerPlayer player, final Sheets.Stack item) {
+	private static void give(final ServerPlayer player, final Sheets.Stack item) {
+		// `give <uuid>` gives nothing in 26.3; `execute as <uuid>` finds the player
 		WorldBridge.command(String.format(Locale.ROOT, "execute as %s run give @s %s %d", player.getStringUUID(), item.item(), item.count()));
 	}
 
-	/** {"t":"quest","id":...}: New Vegas finished a quest. Its chest lands once per world. */
-	public static void questDone(final String id) {
-		MinecraftServer s = server;
+	/** {"t":"quest","id":...}: their New Vegas finished a quest. Its chest lands once per player. */
+	static void questDone(final MinecraftServer s, final ServerPlayer player, final Courier c, final String id) {
 		Sheets.Quest quest = Sheets.QUESTS.get(id);
-		if (s == null || quest == null) {
+		if (quest == null || state == null) {
 			return;
 		}
 
-		s.execute(() -> {
-			ServerPlayer player = player(s);
-			if (player == null || state == null || state.quests.contains(id)) {
-				return;
-			}
+		Rewards r = rewards(c);
+		if (r.quests.contains(id)) {
+			return;
+		}
 
-			BlockPos at = chestSpot(s.overworld(), player);
-			if (at == null) {
-				Osl.LOG.info("quest {}: no ground for the chest yet, will retry", id);
-				return;
-			}
+		BlockPos at = chestSpot(s.overworld(), player);
+		if (at == null) {
+			Osl.LOG.info("quest {}: no ground for the chest yet, will retry", id);
+			return;
+		}
 
-			state.quests.add(id);
-			save();
-			placeChest(at, Sheets.CHESTS.get(quest.chest()));
-			toast(quest.message());
-		});
+		r.quests.add(id);
+		save();
+		placeChest(at, Sheets.CHESTS.get(quest.chest()));
+		toast(s, c, quest.message());
 	}
 
 	/**
@@ -287,11 +317,12 @@ public final class Economy {
 		}
 	}
 
-	/** Test hook (self-test): forget the world's rewards. */
-	public static void resetForTest() {
+	/** Test hook (self-test): forget this player's rewards. */
+	static void resetForTest(final Courier c) {
 		if (state != null) {
-			state.quests.clear();
-			state.builds.clear();
+			Rewards r = rewards(c);
+			r.quests.clear();
+			r.builds.clear();
 		}
 	}
 }
